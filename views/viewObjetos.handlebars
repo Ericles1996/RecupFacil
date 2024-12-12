@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Objeto</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="objetos-container">
+        <h1>Detalhes do Objeto</h1>
+        
+<div class="imagem-container">
+    {{#each objeto.imagens}}
+        <img src="{{this.img1}}" alt="Imagem do Objeto" style="width: 300px; height: auto; cursor: pointer;" onclick="exibirEmTelaCheia(this)" />
+    {{/each}}
+</div>
+
+
+        <h3>Recompensa: <span class="recompensa-color">{{objeto.recompensa}}</span></h3>
+        <p><strong>Crime:</strong> <span class="crime-color">{{objeto.crime}}</span></p>
+        <p><strong>Cor:</strong> {{objeto.cor}}</p><br>
+        <p><strong>Detalhes do Crime: <br></strong> {{objeto.det_crime}}</p> <br>
+        <p><strong>Informações Adicionais: <br></strong> {{objeto.inf_adicionais}}</p><br>
+        <p><strong>Status:</strong> {{objeto.status}}</p>
+        <p><strong>Categoria:</strong> {{objeto.categoria}}</p>
+
+        {{#if detalhesAdicionais}}
+            {{#ifEquals objeto.categoria "eletronico"}}
+                <h3>Detalhes do Eletrônico</h3>
+                {{#if detalhesAdicionais.marca}}
+                    <p><strong>Identificador:</strong> {{detalhesAdicionais.cod_identificador}}</p>
+                {{/if}}
+                {{#if detalhesAdicionais.marca}}
+                    <p><strong>Marca:</strong> {{detalhesAdicionais.marca}}</p>
+                {{/if}}
+                {{#if detalhesAdicionais.modelo}}
+                    <p><strong>Modelo:</strong> {{detalhesAdicionais.modelo}}</p>
+                {{/if}}
+                {{#if detalhesAdicionais.serial}}
+                    <p><strong>Número de Série:</strong> {{detalhesAdicionais.serial}}</p>
+                {{/if}}
+                {{#if detalhesAdicionais.tipo}}
+                    <p><strong>Tipo:</strong> {{detalhesAdicionais.tipo}}</p>
+                {{/if}}
+            {{/ifEquals}}
+
+            {{#ifEquals objeto.categoria "veiculo"}}
+                <h3>Detalhes do Veículo</h3>
+                {{#if detalhesAdicionais.placa}}
+                    <p><strong>Placa:</strong> {{detalhesAdicionais.placa}}</p>
+                {{/if}}
+                {{#if detalhesAdicionais.chassi}}
+                    <p><strong>Chassi:</strong> {{detalhesAdicionais.chassi}}</p>
+                {{/if}}
+                {{#if detalhesAdicionais.marca}}
+                    <p><strong>Marca:</strong> {{detalhesAdicionais.marca}}</p>
+                {{/if}}
+                {{#if detalhesAdicionais.modelo}}
+                    <p><strong>Modelo:</strong> {{detalhesAdicionais.modelo}}</p>
+                {{/if}}
+            {{/ifEquals}}
+
+            {{#ifEquals objeto.categoria "outros"}}
+                <h3>Detalhes Adicionais</h3>
+                <p><strong>Descrição:</strong> {{detalhesAdicionais.descricao}}</p>
+            {{/ifEquals}}
+        {{/if}}
+
+        <br>
+        <a href="/home">Voltar para a home</a>
+    </div>
+</body>
+</html>
+
+
+<script>
+
+
+</script>

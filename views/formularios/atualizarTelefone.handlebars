@@ -1,0 +1,17 @@
+<form method="POST" action="/atualizarTelefone">
+    <div class="telefone-info">
+        <h2>Atualizar Telefone</h2>
+        {{#if usuario.Telefones.length}}
+            {{#each usuario.Telefones}}
+                <div class="form-group">
+                    <label for="telefone_{{@index}}">Telefone ({{this.tipo}}):</label>
+                    <input type="text" id="telefone_{{@index}}" name="telefone_numero_{{@index}}" value="{{this.numero}}" required>
+                    <input type="hidden" name="telefone_id" value="{{this.id}}"> <!-- ID do telefone -->
+                </div>
+            {{/each}}
+        {{else}}
+            <p>Nenhum telefone cadastrado.</p>
+        {{/if}}
+    </div>
+    <button type="submit">Atualizar Telefone</button>
+</form>

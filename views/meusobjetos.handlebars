@@ -1,0 +1,74 @@
+<nav class="subguias-nav">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <ul>
+        <li><a href="/postar">Publicar Objeto</a></li>
+            <li>
+         <form method="GET" action="/filtro-status">
+    <label for="status">Filtrar por Status:</label>
+    <select id="status" name="status" onchange="this.form.submit()">
+        <option value="" disabled {{#if (eq selectedStatus "")}}selected{{/if}}>Selecione uma opção</option>
+        <option value="todos" {{#if (eq selectedStatus "todos")}}selected{{/if}}>Todos</option>
+        <option value="roubado" {{#if (eq selectedStatus "roubado")}}selected{{/if}}>Roubado</option>
+        <option value="furtado" {{#if (eq selectedStatus "furtado")}}selected{{/if}}>Furtado</option>
+    </select>
+</form>
+
+
+        
+    </ul>
+</nav>
+
+<div class="objetos-container">
+    {{#if objetos.length}}
+        <ul class="objetos-list">
+            {{#each objetos}}
+                <li class="objeto-item">
+                    <div class="imagem-container">
+                        {{#each this.imagens}}
+                            <img src="{{this.img1}}" alt="Imagem do Objeto" style="width: 200px; height: auto;" />
+                                <form action="/excluirImagem/{{this.id}}?_method=DELETE" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza de que deseja excluir esta imagem?');">
+                                    <button type="submit" class="btn-excluir" style="margin-top: 10px;">
+                                        <i class="fa fa-trash"></i> <!-- Ícone da lixeira -->
+                                    </button>
+                                </form>
+                        {{/each}}
+                        <br><br>
+                    
+                    </div>
+                   <h3 class="objeto-nome"><strong>Recompensa: </strong> <span class="recompensa-color">{{this.recompensa}}</span></h3>
+                    <p class="objeto-descricao"><strong>Crime:</strong> <span class="crime-color"> {{this.crime}}</span></p>
+                    <p class="objeto-cor"><strong>Cor:</strong> {{this.cor}}</p>
+                    <p class="objeto-det-crime"><strong>Detalhes do Crime:</strong><br>{{this.det_crime}}</p>
+                    <p class="objeto-info-adicional"><strong>Informações Adicionais:</strong><br>{{this.inf_adicionais}}</p>
+                    <p class="objeto-status"><strong>Status:</strong> {{this.status}}</p>
+                    <p class="objeto-categoria"><strong>Categoria:</strong> {{this.categoria}}</p>
+
+                   <br>
+                    <div class="objeto-acoes">
+                        <button class="btn-editar" onclick="window.location.href='/editarobjeto/{{this.id}}'">Editar Postagem</button>
+                        <form action="/excluirObjeto/{{this.id}}" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza de que deseja excluir este objeto?');">
+                            <button type="submit" class="btn-excluir">Excluir Postagem</button>
+                        </form>
+                        <br><br>
+                    </div>
+                    <p><a href="/viewobjetos/{{this.id}}">Visualizar Objeto</a></p>
+                </li>
+            {{/each}}
+        </ul>
+    {{else}}
+        <p class="sem-objetos">Você ainda não postou nenhum objeto.</p>
+    {{/if}}
+</div>
+
+
+<script>
+    function confirmarExclusao(id) {
+  if (confirm('Realmente deseja excluir o objeto?')) {
+        // Submete o formulário manualmente após a confirmação
+        document.getElementById(`form-excluir-${id}`).submit();
+    } else {
+        console.log('Ação de exclusão cancelada.');
+    }
+}
+</script>

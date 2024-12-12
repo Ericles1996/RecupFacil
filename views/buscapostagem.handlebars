@@ -1,0 +1,28 @@
+
+<h1>Resultados da Busca: "{{termo}}"</h1><br>
+
+<div class="buscar-postagem">
+    {{#if objetos.length}}
+        {{#each objetos}}
+            <div class="resultado-item">
+                {{#if this.imagens.length}}
+                    <div class="image-preview">
+                        {{#each this.imagens}}
+                            {{#if @first}} 
+                                <img src="{{this.img1}}" alt="Imagem do Objeto" />
+                            {{/if}}
+                        {{/each}}
+                    </div>
+                {{/if}}
+
+                <h3>Categoria: {{this.categoria}}</h3>
+                <h4>Recompensa: {{this.recompensa}}</h4>
+
+                <br>              
+                <p><a href="/viewobjetos/{{this.id}}">Visualizar Objeto</a></p>
+            </div>
+        {{/each}}
+    {{else}}
+        <p>Nenhum resultado encontrado para sua busca.</p>
+    {{/if}}
+</div>

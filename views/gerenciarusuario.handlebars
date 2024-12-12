@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Usuários</title>
+    <nav class="subguias-nav">
+    <ul>
+        <li><a href="/admincadUsuario">Cadastrar Usuario</a></li>         
+        
+    </ul>
+</nav>
+</head>
+<body>
+    <h1>Lista de Usuários e Seus Telefones</h1>
+    <div class="table-container">
+        <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Nível</th>
+                <th>Email</th>
+                <th>Telefones</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each usuarios}}
+                <tr>
+                    <td>{{this.id}}</td>
+                    <td>{{this.nome}}</td>
+                    <td>{{this.nivel}}</td>
+                    <td>{{this.email}}</td>
+                    <td>
+                        {{#if this.Telefones}}
+                            {{#each this.Telefones}}
+                                <p>{{this.numero}} ({{this.tipo}})</p>
+                            {{/each}}
+                        {{else}}
+                            <p>Sem telefone cadastrado</p>
+                        {{/if}}
+                    </td>
+                    <td>{{this.status}}</td>
+                    
+                      <td>
+                        <form action="editarNivel/{{this.id}}" method="GET" style="display:inline;">
+                            <button type="submit" class="btn-editar">Editar</button>
+                        </form>
+                        <form id="form-excluir-<%= usuario.id %>" action="/usuario/{{this.id}}?_method=DELETE" method="POST" style="display:inline;">
+                            <button type="button" onclick="confirmarExclusao('<%= usuario.id %>')" class="btn-excluir">Excluir</button>
+                        </form>
+
+                    </td>
+
+                   
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    </div>
+</body>
+</html>
+
+
+
+<script>
+
+function confirmarExclusao(id) {
+  if (confirm('Realmente deseja excluir o usuário?')) {
+        // Submete o formulário manualmente após a confirmação
+        document.getElementById(`form-excluir-${id}`).submit();
+    } else {
+        console.log('Ação de exclusão cancelada.');
+    }
+}
+
+</script>

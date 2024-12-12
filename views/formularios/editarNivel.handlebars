@@ -1,0 +1,43 @@
+    <div class="login-container">
+        <h2>Editar Usuário</h2>
+        <form action="/editarNivel/{{usuario.id}}" method="POST">
+        <h2>Usuário: {{{usuario.nome}}}</h2>
+            <!-- ID do Usuário (Campo oculto) -->
+            <input type="hidden" name="user_id" value="{{usuario.id}}">
+
+            <!-- Nível de permissão -->
+            <div class="form-group">
+                <label for="permission_level">Nível de Permissão:</label>
+                <select id="permission_level" name="permission_level" required>
+                    <option value="1">1 - Usuário</option>
+                    <option value="2">2 - Administrador</option>
+                </select>
+            </div>
+
+            <!-- Campo de Status -->
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit">Salvar</button>
+                <button type="button" class="cancel-button" onclick="history.back()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definir o nível de permissão
+            const nivel = "{{usuario.nivel}}";
+            document.getElementById('permission_level').value = nivel;
+
+            // Definir o status
+            const status = "{{usuario.status}}";
+            document.getElementById('status').value = status;
+        });
+    </script>

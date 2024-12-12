@@ -1,0 +1,122 @@
+<div class="login-container">
+    <h2>Postagem de Objeto</h2>
+    <form action="/postar" method="POST" enctype="multipart/form-data">
+        <div class="form-group image-container" id="image-fields">
+            <label for="image1">Imagem 1:</label>
+            <input type="file" id="image1" name="images" accept="image/*" onchange="previewImages(event, 1)" required>
+            <div class="image-preview" id="image-preview1"></div>
+        </div>
+
+        <!-- Botão para adicionar mais imagens -->
+        <div class="form-group image-buttons">
+            <button type="button" class="adicionar-imagens" onclick="addImageField()">Adicionar imagem</button>
+            <button type="button" class="excluir-imagens" onclick="removeImageField()">Excluir imagem</button>
+        </div>
+
+
+        <div class="form-group">
+            <label for="reward">Valor da Recompensa:</label>
+            <input type="number" id="reward" name="reward" required>
+        </div>
+        <div class="form-group">
+            <label for="crimeType">Tipo de Crime:</label>
+            <select id="crimeType" name="crimeType" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="roubo">Roubo</option>
+                <option value="furto">Furto</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="color">Cor do Objeto:</label>
+            <input type="text" id="color" name="color" required>
+        </div>
+        <div class="form-group">
+            <label for="crimeDetails">Detalhes do Crime:</label>
+            <textarea id="crimeDetails" name="crimeDetails" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="additionalInfo">Informações Adicionais:</label>
+            <textarea id="additionalInfo" name="additionalInfo"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="roubado">Roubado</option>
+                <option value="furtado">Furtado</option>
+                <option value="recuperado">Recuperado</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="category">Categoria:</label>
+            <select id="category" name="category" required onchange="showAdditionalFields()">
+                <option value="" disabled selected>Selecione</option>
+                <option value="eletronico">Eletrônico</option>
+                <option value="veiculo">Veículo</option>
+                <option value="outro">Outro</option>
+            </select>
+        </div>
+
+        <!-- Campos adicionais para eletrônico -->
+            <div id="eletronicoFields" style="display: none;">
+                <div class="form-group">
+                    <label for="identifier">Código Identificador:</label>
+                    <input type="text" id="identifier" name="identifier">
+                </div>
+                <div class="form-group">
+                    <label for="brand">Marca:</label>
+                    <input type="text" id="brand" name="brand">
+                </div>
+                <div class="form-group">
+                    <label for="objectType">Tipo do Objeto:</label>
+                    <input type="text" id="objectType" name="objectType">
+                </div>
+            </div>
+
+            <!-- Campos adicionais para veículo -->
+            <div id="veiculoFields" style="display: none;">
+                <div class="form-group">
+                    <label for="model">Modelo:</label>
+                    <input type="text" id="model" name="model">
+                </div>
+                <div class="form-group">
+                    <label for="brandVehicle">Marca:</label>
+                    <input type="text" id="brandVehicle" name="brandVehicle">
+                </div>
+                <div class="form-group">
+                    <label for="plate">Placa:</label>
+                    <input type="text" id="plate" name="plate">
+                </div>
+                <div class="form-group">
+                    <label for="chassis">Chassi:</label>
+                    <input type="text" id="chassis" name="chassis" >
+                </div>
+                <div class="form-group">
+                    <label for="vehicleType">Tipo:</label>
+                    <select id="vehicleType" name="vehicleType">
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="carro">Carro</option>
+                        <option value="moto">Moto</option>
+                        <option value="caminhao">Caminhão</option>
+                        <option value="outros">Outro</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Campo para outro tipo -->
+            <div id="outroFields" style="display: none;">
+                <div class="form-group">
+                    <label for="objectDetails">Detalhes do Objeto:</label>
+                    <textarea id="objectDetails" name="objectDetails"></textarea>
+                </div>
+            </div>
+
+             <div class="form-actions">
+                <button type="submit">Postar</button>
+                <button type="button" class="cancel-button" onclick="history.back()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+        
+    </form>
+</div>

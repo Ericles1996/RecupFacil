@@ -1,0 +1,132 @@
+<div class="login-container">
+    <h2>Editar Objeto</h2>
+    <form action="/editarobjeto/{{objeto.id}}" method="POST" enctype="multipart/form-data">
+<div class="form-group image-container" id="image-fields">
+            <label>Imagens cadastradas:</label>
+
+            {{#each imagens}}
+                <div class="image-group">
+                    <!-- Formulário separado para exclusão da imagem -->
+                    <div class="image-preview" id="image-preview-{{@index}}">
+                        <img src="{{this.img1}}" alt="Imagem do Objeto" style="width: 200px; height: auto; margin-bottom: 10px;" />
+
+                    </div>
+                </div>
+            {{/each}}
+
+        <div class="form-group image-container" id="image-fields">
+            <label for="image1">Escolher nova imagem:</label>
+            <input type="file" id="image1" name="images" accept="image/*" onchange="previewImages(event, 1)">
+            <div class="image-preview" id="image-preview1"></div>
+        </div>
+    
+</div>
+    <div class="form-group image-buttons">
+            <button type="button" class="adicionar-imagens" onclick="addImageField()">Adicionar imagem</button>
+            <button type="button" class="excluir-imagens" onclick="removeImageField()">Excluir imagem</button>
+        </div>
+
+        <div class="form-group">
+            <label for="reward">Valor da Recompensa:</label>
+            <input type="text" id="reward" name="reward" value="{{objeto.recompensa}}" required oninput="formatCurrency(this)">
+        </div>
+
+
+        <div class="form-group">
+            <label for="crimeType">Tipo de Crime:</label>
+            <select id="crimeType" name="crimeType" required>
+                <option value="roubo" {{#if (eq objeto.crime "roubo")}}selected{{/if}}>Roubo</option>
+                <option value="furto" {{#if (eq objeto.crime "furto")}}selected{{/if}}>Furto</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="crimeDetails">Detalhes do Crime:</label>
+            <textarea id="crimeDetails" name="crimeDetails" required>{{objeto.det_crime}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="additionalInfo">Informações Adicionais:</label>
+            <textarea id="additionalInfo" name="additionalInfo">{{objeto.inf_adicionais}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="color">Cor:</label>
+            <input type="text" id="color" name="color" value="{{objeto.cor}}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Categoria:</label>
+            <select id="category" name="category" required onchange="handleCategoryChange()">
+                <option value="eletronico" {{#ifEquals objeto.categoria "eletronico"}}selected{{/ifEquals}}>Eletrônico</option>
+                <option value="veiculo" {{#ifEquals objeto.categoria "veiculo"}}selected{{/ifEquals}}>Veículo</option>
+                <option value="outro" {{#ifEquals objeto.categoria "outro"}}selected{{/ifEquals}}>Outro</option>
+            </select>
+        </div>
+
+        <!-- Campos para eletrônicos -->
+        <div id="eletronicoFields" class="category-fields" style="display: {{#ifEquals objeto.categoria "eletronico"}}block{{else}}none{{/ifEquals}};">
+            <div class="form-group">
+                <label for="identifier">Código Identificador:</label>
+                <input type="text" id="identifier" name="identifier" value="{{eletronico.cod_identificador}}">
+            </div>
+            <div class="form-group">
+                <label for="brandEletronico">Marca:</label>
+                <input type="text" id="brandEletronico" name="brandEletronico" value="{{eletronico.marca}}">
+            </div>
+            <div class="form-group">
+                <label for="modelEletronico">Modelo:</label>
+                <input type="text" id="modelEletronico" name="modelEletronico" value="{{eletronico.modelo}}">
+            </div>
+            <div class="form-group">
+                <label for="objectType">Tipo:</label>
+                    <select id="objectType" name="objectType">
+                        <option value="" disabled {{#unless eletronico.tipo}}selected{{/unless}}>Selecione</option>
+                        <option value="celular" {{#ifEquals eletronico.tipo "celular"}}selected{{/ifEquals}}>Celular</option>
+                        <option value="tv" {{#ifEquals eletronico.tipo "tv"}}selected{{/ifEquals}}>TV</option>
+                        <option value="relogio" {{#ifEquals eletronico.tipo "relogio"}}selected{{/ifEquals}}>Relógio</option>
+                        <option value="outro" {{#ifEquals eletronico.tipo "outro"}}selected{{/ifEquals}}>Outro</option>
+                    </select>
+
+            </div>
+        </div>
+
+        <!-- Campos para veículos -->
+        <div id="veiculoFields" class="category-fields" style="display: {{#ifEquals objeto.categoria "veiculo"}}block{{else}}none{{/ifEquals}};">
+            <div class="form-group">
+                <label for="modelVehicle">Modelo:</label>
+                <input type="text" id="modelVehicle" name="modelVehicle" value="{{veiculo.modelo}}">
+            </div>
+            <div class="form-group">
+                <label for="brandVehicle">Marca:</label>
+                <input type="text" id="brandVehicle" name="brandVehicle" value="{{veiculo.marca}}">
+            </div>
+            <div class="form-group">
+                <label for="plate">Placa:</label>
+                <input type="text" id="plate" name="plate" value="{{veiculo.placa}}">
+            </div>
+            <div class="form-group">
+                <label for="chassis">Chassi:</label>
+                <input type="text" id="chassis" name="chassis" value="{{veiculo.chassi}}">
+            </div>
+                 <div class="form-group">
+                    <label for="vehicleType">Tipo:</label>
+                        <select id="vehicleType" name="vehicleType">
+                            <option value="" disabled {{#unless veiculo.tipo}}selected{{/unless}}>Selecione</option>
+                            <option value="carro" {{#ifEquals veiculo.tipo "carro"}}selected{{/ifEquals}}>Carro</option>
+                            <option value="moto" {{#ifEquals veiculo.tipo "moto"}}selected{{/ifEquals}}>Moto</option>
+                            <option value="caminhao" {{#ifEquals veiculo.tipo "caminhao"}}selected{{/ifEquals}}>Caminhão</option>
+                            <option value="outros" {{#ifEquals veiculo.tipo "outros"}}selected{{/ifEquals}}>Outro</option>
+                        </select>
+
+                </div>
+        </div>
+            <div class="form-actions">
+                    <button type="submit">Salvar</button>
+                    <button type="button" class="cancel-button" onclick="history.back()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+           
+
+

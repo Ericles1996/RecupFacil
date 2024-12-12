@@ -1,0 +1,123 @@
+const express = require('express');
+const exphbs = require('express-handlebars');
+const Handlebars = require('handlebars');
+const bodyParser = require('body-parser');
+const path = require('path');
+const session = require('express-session');
+
+const routes = require('./routes/index'); 
+const db = require('./config/database');
+const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
+const { engine } = require('express-handlebars');
+const { Usuario } = require('./models');
+
+
+
+
+
+const app = express();
+
+
+
+
+app.use('/uploads', express.static('public/img/uploads'));
+
+
+
+app.use(express.urlencoded({ extended: true })); // Para dados de formulários
+app.use(express.json()); // Para JSON
+
+// Definindo o helper eq
+Handlebars.registerHelper('eq', function (a, b) {
+  return a === b, a && b;
+});
+
+Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
+  return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+});
+
+Handlebars.registerHelper('getFileName', function (path) {
+  return path.split('/').pop();
+})
+
+
+
+
+// Configuração do middleware express-session
+app.use(session({
+  secret: 'R$#vn8x*2G6z7@X5&8b94NdMswP1Q', 
+  resave: false,            // Evita resalvar a sessão se ela não foi modificada
+  saveUninitialized: false, // Evita salvar sessões não inicializadas
+  cookie: { secure: false } // Defina como true se estiver usando HTTPS
+}));
+
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware para manipular requisições
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+
+// Configurar Handlebars como view engine
+app.engine('handlebars', engine({ // Corrigido aqui
+  defaultLayout: 'main',
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  }
+}));
+
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+
+
+
+//recupera o nome do usuário para exibir no head
+app.use(async (req, res, next) => {
+  if (req.session.userId) {
+      const usuario = await Usuario.findByPk(req.session.userId);
+      if (usuario) {
+          res.locals.nomeUsuario = usuario.nome; // Armazena o nome do usuário em res.locals
+      }
+  }
+  next();
+});
+
+
+// Arquivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(methodOverride('_method'));
+// Rotas
+app.use('/', routes);
+
+
+
+// Iniciar o servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
+// Rota de teste para home
+app.get('/home', (req, res) => {
+  res.render('home', { activePage: 'home' });
+});
+
+// Rota para Meus Objetos
+app.get('/meusobjetos', (req, res) => {
+  res.render('meusobjetos', { activePage: 'meusobjetos' });
+});
+
+
+
+// Middleware para logar todas as requisições
+app.use((req, res, next) => {
+  console.log(`Requisição recebida: ${req.method} ${req.url}`);
+  next();
+});
+
+
+

@@ -1,0 +1,65 @@
+<div class="article-content">
+    <h1>Meus Dados</h1>
+    <p><strong>Nome:</strong> {{usuario.nome}}</p>
+    <p><strong>Email:</strong> {{usuario.email}}</p>
+    <p><strong>CPF:</strong> {{usuario.cpf}}</p>
+    <p><strong>Sexo:</strong> {{usuario.sexo}}</p>
+    <p><strong>Data de Nascimento:</strong> {{usuario.data_nascimento}}</p>
+    <p><strong>Nível:</strong> {{usuario.nivel}}</p>
+    <p><strong>Status:</strong> {{usuario.status}}</p>
+
+    <br>
+
+    <!-- Exibir dados do telefone -->
+    <div class="telefone-info">
+        <h2>Dados do Telefone</h2>
+    {{#if usuario.Telefones.length}}
+    <ul>
+        {{#each usuario.Telefones}}
+            <li>
+           
+            
+                <strong>Número: </strong> {{this.numero}} ({{this.tipo}})
+
+               
+            </li>
+        {{/each}}
+    </ul>
+{{else}}
+    <p>Nenhum telefone cadastrado.</p>
+{{/if}}
+
+    </div>
+
+    <br>
+
+    <!-- Exibir dados do endereço -->
+    <div class="endereco-info">
+        <h2>Dados do Endereço</h2>
+        {{#if usuario.Enderecos.length}}
+            <ul>
+                {{#each usuario.Enderecos}}
+                    <li>
+
+                        <strong>Rua:</strong> {{this.rua}} <br>
+                        <strong>Número:</strong> {{this.numero}} <br>
+                        <strong>Bairro:</strong> {{this.bairro}} <br>
+                        <strong>Cidade:</strong> {{this.cidade}} <br>
+                        <strong>Estado:</strong> {{this.estado}} <br>
+                  
+                   
+                        </form>
+                    </li>
+                {{/each}}
+            </ul>
+        {{else}}
+            <p>Nenhum endereço cadastrado.</p>
+        {{/if}}
+    </div>
+    <br>
+    <div class="form-actions">
+        <button onclick="location.href='/editarusuario/{{usuario.id}}'" class="btn-editar">Editar Dados</button>
+
+        
+    </div>
+</div>
