@@ -300,7 +300,7 @@ const cadastrarObjeto = async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Erro ao cadastrar usuário' });
+        res.status(500).json({ message: 'Erro ao cadastrar objeto' });
     }
 };
 

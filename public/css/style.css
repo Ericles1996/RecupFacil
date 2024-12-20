@@ -5,15 +5,15 @@
 
 
 ul {
-    list-style-type: none; /* Remove o marcador padrão */
-    padding: 0; /* Remove o recuo padrão */
-    margin: 0; /* Remove a margem padrão */
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
 }
 
 
 .menu a {
     text-decoration: none;
-    color: black; /* Cor padrão */
+    color: black; 
     padding: 10px 15px;
 }
 .menu a.active {
@@ -26,8 +26,8 @@ ul {
 
 
 .menu a.selected {
-    background-color: white; /* Fundo branco ao selecionar */
-    border: 2px solid white; /* Borda branca */
+    background-color: white; 
+    border: 2px solid white; 
     color: black; /* Cor da fonte */
     border-radius: 6px;
 }
@@ -54,14 +54,14 @@ ul {
     font-weight: bold;
     color: white;
     position: absolute;
-    left: 10px; /* Mantém a logo fixada à esquerda */
+    left: 10px; 
     
 }
 
 .navbar .logo img {
-    height: 60px; /* Ajuste a altura da imagem conforme necessário */
-    width: auto; /* Mantém a proporção da imagem */
-    margin-right: 10px; /* Espaço entre a imagem e o texto, se houver */
+    height: 60px;
+    width: auto; 
+    margin-right: 10px; 
     margin-left: 5px;
     margin-top: 10px;
     border-radius: 50px;
@@ -77,7 +77,7 @@ ul {
     padding: 0 20px;
     display: flex;
     align-items: center;
-    justify-content: center; /* Centraliza o conteúdo principal */
+    justify-content: center; 
 }
 
 /* Links do menu principal */
@@ -155,13 +155,13 @@ ul {
     cursor: pointer;
     color: white;
     position: absolute;
-    right: 20px; /* Alinha o ícone do menu à direita */
+    right: 20px;
 }
 
 /* Estilo para dispositivos móveis */
 @media (max-width: 768px) {
     .navbar .container ul {
-        display: none; /* Ocultar o menu principal */
+        display: none; 
         flex-direction: column;
         width: 100%;
         position: absolute;
@@ -175,7 +175,7 @@ ul {
     }
 
     .menu-icon {
-        display: block; /* Mostrar o ícone do menu */
+        display: block; 
     }
 }
 
@@ -212,7 +212,7 @@ body {
 
 .subguias-nav ul li a {
     text-decoration: none;
-    color: black; /* Cor da fonte preta */
+    color: black; 
     padding: 10px 15px;
     transition: background-color 0.3s;
     border-radius: 5px;
@@ -220,7 +220,7 @@ body {
 
 /* Estilo ao passar o mouse */
 .subguias-nav ul li a:hover {
-    background-color: #f0f0f0; /* Fundo leve ao passar o mouse */
+    background-color: #f0f0f0; 
 }
 
 
@@ -239,13 +239,13 @@ html, body {
 
 
 /* Estilos do Rodapé */
-/* Mantém o footer no fim da página */
+
 .main-footer {
     background-color: #333;
     color: #fff;
     padding: 20px 0;
     text-align: center;
-    margin-top: auto; /* Garante que o footer "empurre" para baixo */
+    margin-top: auto; 
 }
 
 .footer-container {
@@ -320,45 +320,45 @@ header h1{
 }
 
 .article-content {
-    max-width: 800px; /* Limita a largura do artigo */
-    margin: 20px auto; /* Centraliza o artigo na página */
-    padding: 20px; /* Adiciona espaço interno */
-    background-color: #f9f9f9; /* Cor de fundo suave */
-    border-radius: 8px; /* Bordas arredondadas */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra para profundidade */
+    max-width: 800px; 
+    margin: 20px auto; 
+    padding: 20px; 
+    background-color: #f9f9f9; 
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); 
 }
 .article-content h1 {
 
     font-size: 30px;
 }
 .article-content h2 {
-    margin-top: 20px; /* Espaçamento acima dos títulos */
-    margin-bottom: 10px; /* Espaçamento abaixo dos títulos */
+    margin-top: 20px; 
+    margin-bottom: 10px; 
 }
 
 .article-content p {
-    margin: 15px 0; /* Espaçamento entre parágrafos */
+    margin: 15px 0; 
 }
 
 .article-content ul {
-    margin-left: 5px; /* Afasta a lista da borda esquerda */
-    margin-top: 10px; /* Espaço acima da lista */
+    margin-left: 5px;
+    margin-top: 10px; 
 }
 
 /*rodapé do artigo*/
 footer {
-    text-align: center; /* Centraliza o texto do rodapé */
-    margin-top: 30px; /* Espaçamento acima do rodapé */
-    padding: 10px; /* Espaço interno no rodapé */
-    background-color: #f1f1f1; /* Cor de fundo do rodapé */
-    border-top: 1px solid #ccc; /* Linha acima do rodapé */
+    text-align: center; 
+    margin-top: 30px; 
+    padding: 10px; 
+    background-color: #f1f1f1; 
+    border-top: 1px solid #ccc; 
 }
 
 
 
 
 /* Estilo para o dropdown */
-/* Estilo básico do menu */
+
 .menu {
     list-style: none;
     display: flex;
@@ -417,61 +417,60 @@ footer {
 
 
 
-/*----------------------------------------------------------------*/
-/*css para as tabelas*/
+/* css para as tabelas */
 
 .table-container {
-    max-width: 100%; /* Largura máxima da tabela */
-    margin: 20px auto; /* Centraliza a tabela */
-    border-radius: 8px; /* Bordas arredondadas */
-    overflow: hidden; /* Esconde o overflow */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra ao redor da tabela */
-    max-height: 400px; /* Altura máxima da tabela */
-    overflow-y: auto; /* Habilita a rolagem vertical */
-    width: 100%; /* Garante que a tabela ocupe 100% da largura */
-    border: 1px solid #ddd; /* Bordas ao redor da tabela */    
+    max-width: 100%; 
+    margin: 20px auto; 
+    border-radius: 8px; 
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-height: 400px; 
+    overflow-y: auto;
+    width: 100%; 
+    border: 1px solid #ddd; 
 }
 
 /* Tabela */
 .table-container table {
-    width: 100%; /* Largura total */
-    border-collapse: collapse; /* Remove espaços entre células */
-    background-color: #fff; /* Fundo branco da tabela */
+    width: 100%; 
+    border-collapse: collapse; 
+    background-color: #fff; 
 }
 
 /* Cabeçalho da tabela */
 .table-container th {
-    background-color: #333; /* Fundo escuro */
-    color: #fff; /* Texto branco */
-    padding: 12px; /* Padding interno */
-    text-align: center; /* Alinhamento do texto ao centro */
+    background-color: #333;
+    color: #fff; 
+    padding: 12px; 
+    text-align: center; 
 }
 
 /* Células da tabela */
 .table-container td {
-    padding: 10px; /* Padding interno */
-    border: 1px solid #ddd; /* Bordas cinzas */
-    text-align: center; /* Alinhamento do texto ao centro */
+    padding: 10px; 
+    border: 1px solid #ddd; 
+    text-align: center; 
 }
 
 /* Cores para as linhas da tabela */
 .table-container tr:nth-child(even) {
-    background-color: #f2f2f2; /* Cinza claro para linhas pares */
+    background-color: #f2f2f2; 
 }
 
 .table-container tr:hover {
-    background-color: #e0e0e0; /* Cinza mais escuro ao passar o mouse */
+    background-color: #e0e0e0; 
 }
 
 /* Estilos para dispositivos menores */
 @media screen and (max-width: 768px) {
     .table-container {
-        overflow-x: auto; /* Adiciona rolagem horizontal para telas pequenas */
+        overflow-x: auto; 
     }
     
     .table th, .table td {
-        font-size: 14px; /* Reduz o tamanho da fonte em dispositivos menores */
-        padding: 8px; /* Ajusta o espaçamento dentro das células */
+        font-size: 14px; 
+        padding: 8px; 
     }
 }
 
@@ -486,7 +485,7 @@ footer {
     border-radius: 4px;
     cursor: pointer;
     background-color: transparent;
-    border: 2px solid #4CAF50; /* Borda verde */
+    border: 2px solid #4CAF50; 
     color: #4CAF50;
     font-weight: bold;
 }
@@ -502,7 +501,7 @@ footer {
     border-radius: 4px;
     cursor: pointer;
     background-color: transparent;
-    border: 2px solid #f44336; /* Borda vermelha */
+    border: 2px solid #f44336; 
     color: #f44336;
     font-weight: bold;
 }
@@ -518,13 +517,13 @@ footer {
     border-radius: 4px;
     cursor: pointer;
     background-color: transparent;
-    border: 2px solid blue; /* Borda vermelha */
+    border: 2px solid blue; 
     color: blue;
     font-weight: bold;
 }
 
 .btn-ver:hover {
-    background-color: blue; /* Verde escuro ao passar o mouse */
+    background-color: blue; 
     color: white;
 }
 
@@ -539,33 +538,33 @@ footer {
 }
 
 .user-menu .dropdown {
-    display: none; /* Ocultar o dropdown inicialmente */
+    display: none; 
     position: absolute;
-    background-color: #fff; /* Cor de fundo do menu */
-    box-shadow: 0px 8px 16px rgba(0,0,0,0.2); /* Sombras para o dropdown */
-    min-width: 160px; /* Largura mínima */
-    z-index: 1; /* Coloca o menu sobre os outros elementos */
-    right: 0; /* Alinha o dropdown à direita */
+    background-color: #fff; 
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2); 
+    min-width: 160px; 
+    z-index: 1; 
+    right: 0; 
     border-radius: 4px;
 }
 
 .user-menu .dropdown a {
-    color: black; /* Cor do texto */
-    padding: 12px 16px; /* Espaçamento interno */
-    text-decoration: none; /* Remove o sublinhado */
-    display: block; /* Faz os links ocuparem a largura total */
+    color: black; 
+    padding: 12px 16px; 
+    text-decoration: none; 
+    display: block; 
 }
 
 .user-menu .dropdown a:hover {
-    background-color: #ddd; /* Cor de fundo ao passar o mouse */
+    background-color: #ddd; 
 }
 
 .user-menu:hover .dropdown {
-    display: block; /* Mostra o dropdown quando o mouse passa sobre o nome do usuário */
+    display: block; 
 }
 
 .arrow-down {
-    margin-left: 5px; /* Espaçamento entre o nome e a seta */
+    margin-left: 5px; 
 }
 
 /*-------------------------------------------------------------
@@ -623,42 +622,42 @@ footer {
 /*-------------------------------------------------------------*/
 
 .todos-objetos-container {
-    padding: 20px; /* Espaçamento interno da contêiner */
+    padding: 20px; 
 }
 
 .todos-objetos-container .objetos-list {
-    display: grid; /* Usar grid para layout flexível */
+    display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Mínimo de 300px por coluna */
-    gap: 20px; /* Espaçamento entre os itens */
-    list-style-type: none; /* Remove marcadores de lista */
-    padding: 0; /* Remove padding padrão */
-    margin: 0; /* Remove margin padrão */
+    gap: 20px; 
+    list-style-type: none; 
+    padding: 0; 
+    margin: 0; 
 }
 
 .todos-objetos-container .objeto-item {
-    background: #f9f9f9; /* Cor de fundo dos itens */
-    border: 1px solid #ddd; /* Borda dos itens */
-    border-radius: 5px; /* Bordas arredondadas */
-    padding: 15px; /* Espaçamento interno */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-    transition: transform 0.2s; /* Efeito de transição para hover */
+    background: #f9f9f9; 
+    border: 1px solid #ddd; 
+    border-radius: 5px; 
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    transition: transform 0.2s; 
 }
 
 .todos-objetos-container .objeto-item:hover {
-    transform: translateY(-5px); /* Eleva o item ao passar o mouse */
+    transform: translateY(-5px); 
 }
 
 .todos-objetos-container .imagem-container {
-    text-align: center; /* Centraliza a imagem */
-    margin-bottom: 10px; /* Espaçamento abaixo da imagem */
+    text-align: center; 
+    margin-bottom: 10px; 
     
 }
 
 .imagem-container img {
-    width: 200px; /* Largura fixa para todas as imagens */
-    height: 200px; /* Altura fixa para todas as imagens */
-    object-fit: cover; /* Ajusta a imagem para cobrir completamente o espaço */
-    border-radius: 8px; /* Opcional: deixa os cantos arredondados */
+    width: 200px; 
+    height: 200px; 
+    object-fit: cover; 
+    border-radius: 8px; 
 }
 
 .todos-objetos-container .objeto-nome,
@@ -668,13 +667,13 @@ footer {
 .todos-objetos-container .objeto-info-adicional,
 .todos-objetos-container .objeto-status,
 .todos-objetos-container .objeto-categoria {
-    margin: 5px 0; /* Espaçamento entre os textos */
+    margin: 5px 0; 
 }
 
 @media (max-width: 768px) {
     /* Ajustes para telas menores */
     .todos-objetos-container .objetos-list {
-        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); /* 1 coluna em telas pequenas */
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr)); 
     }
 }
 
@@ -728,8 +727,8 @@ footer {
 }
 
 .resultado-item img {
-    width: 100%; /* Ajusta o tamanho das imagens */
-    max-width: 200px; /* Limita o tamanho da imagem */
+    width: 100%; 
+    max-width: 200px; 
     height: auto;
     margin-bottom: 10px;
 }
@@ -741,7 +740,7 @@ h3, h4 {
 
 
 .recompensa-color {
-    color: green; /* Ou qualquer outra cor desejada */
+    color: green; 
 }
 .crime-color{
     color: red;
