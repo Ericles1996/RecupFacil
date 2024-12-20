@@ -22,13 +22,14 @@ ul {
     font-weight: bold;
     border-bottom: 2px solid #000;
     color: #000;
+    
 }
 
 
 .menu a.selected {
     background-color: white; 
     border: 2px solid white; 
-    color: black; /* Cor da fonte */
+    color: black; 
     border-radius: 6px;
 }
 
