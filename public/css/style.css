@@ -59,15 +59,9 @@ ul {
     
 }
 
-.navbar .logo img {
-    height: 60px;
-    width: auto; 
-    margin-right: 10px; 
-    margin-left: 5px;
-    margin-top: 10px;
-    border-radius: 50px;
-    border-color: white;
-    cursor: pointer;
+.logo a {
+    text-decoration: none;
+    color: white;
 }
 
 /* Contêiner centralizado */
