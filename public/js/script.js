@@ -195,3 +195,45 @@ function exibirEmTelaCheia(img) {
     document.body.appendChild(overlay);
 }
 
+//=======================================================================
+//      Função para ativar a guia principal segundo suas subguias                
+//=======================================================================
+
+document.addEventListener("DOMContentLoaded", () => {
+    const currentPath = window.location.pathname; // Obtém o caminho atual da URL
+    console.log('Caminho atual:', currentPath); // Log do caminho atual
+
+    // Subguias associadas às guias principais
+    const paths = {
+        ajuda: ["/", "/artigos", "/dicasregionais", "/comodenunciar", "/links"],
+        admin: ["/gerenciarusuario", "/gerenciarobjeto"],
+        home: ["/filtro"], 
+        meusobjetos: ["/meusobjetos", "/filtro-status"] // Adiciona a rota do filtro de status à guia Meus Objetos
+    };
+
+    // Verifica e ativa as guias principais e suas subguias
+    Object.entries(paths).forEach(([menuId, subPaths]) => {
+        if (subPaths.includes(currentPath)) {
+            console.log(`Ativando menu: ${menuId}`); // Log quando um menu é ativado
+            
+            // Ativa a guia principal usando o ID
+            const mainMenu = document.getElementById(`menu-${menuId}`);
+            if (mainMenu) {
+                mainMenu.classList.add("active");
+            }
+
+            // Ativa a subguia correspondente (se houver)
+            document.querySelectorAll(`.dropdown a[href="${currentPath}"], .subguias-nav a[href="${currentPath}"]`).forEach(link => {
+                link.classList.add("active");
+            });
+        }
+    });
+
+    // Ativa a guia "Meus Objetos" diretamente se estiver na rota de filtro de status
+    if (currentPath === '/filtro-status') {
+        const meusObjetosMenu = document.getElementById('menu-meus-objetos');
+        if (meusObjetosMenu) {
+            meusObjetosMenu.classList.add("active");
+        }
+    }
+});

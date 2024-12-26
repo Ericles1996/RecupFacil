@@ -752,33 +752,32 @@ const buscarObjetosPorCategoria = async (categoria) => {
 //                      filtro por status
 //============================================================
 
-const buscarObjetosPorStatus = async (status) => {
+const buscarObjetosPorStatus = async (status, usuarioId) => {
     try {
-        // Log para verificar o valor do status recebido
         console.log('Status recebido para o filtro:', status);
+        console.log('ID do usuário:', usuarioId);
 
-        if (status === 'todos') {
-            return await Objeto.findAll({
-                include: [{ model: ImagensObjeto, as: 'imagens' }]
-            });
-        }
-
-        const statusValidos = ['roubado', 'furtado'];
+        const statusValidos = ['todos', 'roubado', 'furtado', 'recuperado'];
         if (!statusValidos.includes(status)) {
             throw new Error('Status inválido.');
         }
 
-        // Busca os objetos com base no status fornecido
+        let whereClause = { id_usuario: usuarioId }; // Filtra pelos objetos do usuário
+
+        if (status !== 'todos') {
+            whereClause.status = status; // Adiciona o filtro de status se não for 'todos'
+        }
+
+        // Log da cláusula where antes da consulta
+        console.log('Cláusula WHERE:', whereClause);
+
+        // Busca os objetos com base no filtro
         const objetos = await Objeto.findAll({
-            where: {
-                status: {
-                    [Op.eq]: status 
-                }
-            },
+            where: whereClause,
             include: [{ model: ImagensObjeto, as: 'imagens' }]
         });
 
-        // Log para verificar se os objetos foram encontrados
+        // Log para verificar os objetos encontrados
         console.log('Objetos encontrados:', objetos);
 
         return objetos;
@@ -787,6 +786,8 @@ const buscarObjetosPorStatus = async (status) => {
         throw error;
     }
 };
+
+
 
 //============================================================
 //              carrregar dados do usuário 

@@ -55,7 +55,6 @@ router.get('/logout', logoutController)
 router.post('/excluirObjeto/:id', excluirObjeto);
 router.get('/home', listarObjetosTodos);
 router.get('/viewObjetos/:id', viewObjeto);
-router.post('/filtro-status', buscarObjetosPorStatus);
 router.get('/meusdados', CarregarDadosUsuario);
 router.get('/editarusuario/:id', carregarDadosUsuarioParaEdicao);
 router.post('/editarusuario/:id', atualizarUsuario);
@@ -375,16 +374,24 @@ router.get('/filtro', async (req, res) => {
 //============================================================
 //                      filtro por status
 //============================================================
-
 router.get('/filtro-status', async (req, res) => {
   const { status } = req.query;
+  const usuarioId = req.session.userId; // Acessando o ID do usuário da sessão
+
+  if (!usuarioId) {
+      return res.status(401).send('Usuário não autenticado');
+  }
+
   try {
-      const objetos = await buscarObjetosPorStatus(status);
-      res.render('home', { objetos, selectedStatus: status }); 
+      const objetos = await buscarObjetosPorStatus(status, usuarioId);
+      res.render('meusobjetos', { objetos, selectedStatus: status });
   } catch (error) {
-      res.status(500).json({ message: 'Erro ao buscar objetos' });
+      console.error('Erro ao buscar objetos filtrados:', error);
+      res.status(500).send('Erro ao buscar objetos.');
   }
 });
+
+
 
 
 
