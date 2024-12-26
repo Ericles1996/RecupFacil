@@ -35,8 +35,8 @@
         <div class="form-group">
             <label for="crimeType">Tipo de Crime:</label>
             <select id="crimeType" name="crimeType" required>
-                <option value="roubo" {{#if (eq objeto.crime "roubo")}}selected{{/if}}>Roubo</option>
-                <option value="furto" {{#if (eq objeto.crime "furto")}}selected{{/if}}>Furto</option>
+                <option value="Roubo" {{#ifEquals objeto.crime "Roubo"}}selected{{/ifEquals}}>Roubo</option>
+                <option value="Furto" {{#ifEquals objeto.crime "Furto"}}selected{{/ifEquals}}>Furto</option>
             </select>
         </div>
 
@@ -48,6 +48,15 @@
         <div class="form-group">
             <label for="additionalInfo">Informações Adicionais:</label>
             <textarea id="additionalInfo" name="additionalInfo">{{objeto.inf_adicionais}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="Roubado" {{#ifEquals objeto.status "Roubado"}}selected{{/ifEquals}}>Roubado</option>
+                <option value="Furtado" {{#ifEquals objeto.status "Furtado"}}selected{{/ifEquals}}>Furtado</option>
+                <option value="Recuperado" {{#ifEquals objeto.status "Recuperado"}}selected{{/ifEquals}}>Recuperado</option>
+            </select>
         </div>
 
         <div class="form-group">
