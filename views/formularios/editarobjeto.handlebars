@@ -59,10 +59,24 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="color">Cor:</label>
-            <input type="text" id="color" name="color" value="{{objeto.cor}}" required>
-        </div>
+<div class="form-group">
+    <label for="status">Cor:</label>
+    <select id="color" name="color" required>
+        <option value="Vermelho" {{#ifEquals objeto.cor "Vermelho"}}selected{{/ifEquals}}>Vermelho</option>
+        <option value="Amarelo" {{#ifEquals objeto.cor "Amarelo"}}selected{{/ifEquals}}>Amarelo</option>
+        <option value="Azul" {{#ifEquals objeto.cor "Azul"}}selected{{/ifEquals}}>Azul</option>
+        <option value="Laranja" {{#ifEquals objeto.cor "Laranja"}}selected{{/ifEquals}}>Laranja</option>
+        <option value="Verde" {{#ifEquals objeto.cor "Verde"}}selected{{/ifEquals}}>Verde</option>
+        <option value="Roxo" {{#ifEquals objeto.cor "Roxo"}}selected{{/ifEquals}}>Roxo</option>
+        <option value="Preto" {{#ifEquals objeto.cor "Preto"}}selected{{/ifEquals}}>Preto</option>
+        <option value="Branco" {{#ifEquals objeto.cor "Branco"}}selected{{/ifEquals}}>Branco</option>
+        <option value="Cinza" {{#ifEquals objeto.cor "Cinza"}}selected{{/ifEquals}}>Cinza</option>
+        <option value="Marrom" {{#ifEquals objeto.cor "Marrom"}}selected{{/ifEquals}}>Marrom</option>
+        <option value="Outro" {{#ifEquals objeto.cor "Outro"}}selected{{/ifEquals}}>Outro</option>
+    </select>
+</div>
+
+
 
         <div class="form-group">
             <label for="category">Categoria:</label>

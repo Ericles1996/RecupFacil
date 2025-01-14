@@ -206,7 +206,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Subguias associadas às guias principais
     const paths = {
         ajuda: ["/", "/artigos", "/dicasregionais", "/comodenunciar", "/links"],
-        admin: ["/gerenciarusuario", "/gerenciarobjeto"],
+        admin: ["/gerenciarusuario", "/gerenciarobjeto", "/auditorias"],
         home: ["/filtro"], 
         meusobjetos: ["/meusobjetos", "/filtro-status"] // Adiciona a rota do filtro de status à guia Meus Objetos
     };
@@ -214,7 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Verifica e ativa as guias principais e suas subguias
     Object.entries(paths).forEach(([menuId, subPaths]) => {
         if (subPaths.includes(currentPath)) {
-            console.log(`Ativando menu: ${menuId}`); // Log quando um menu é ativado
+            console.log(`Ativando menu: ${menuId}`); 
             
             // Ativa a guia principal usando o ID
             const mainMenu = document.getElementById(`menu-${menuId}`);
@@ -237,3 +237,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 });
+
+
+

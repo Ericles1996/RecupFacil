@@ -44,7 +44,8 @@ const { cadastrarUsuario, listarUsuarios, excluirUsuario, listarObjetosUsuario,
   excluirObjeto, editarNivelPermissao, cadastrarObjeto, loginController, 
   logoutController, editarObjeto, listarObjetosTodos, viewObjeto, buscarObjetosPorCategoria,
   buscarObjetosPorStatus, CarregarDadosUsuario, buscarUsuario, carregarDadosUsuarioParaEdicao, 
-  atualizarUsuario, gerenciarObjetos, buscarObjetos, excluirImagem  } = require('../controllers/recupcontroller'); 
+  atualizarUsuario, gerenciarObjetos, buscarObjetos, excluirImagem, listarAuditorias,  
+  filtrarAuditorias} = require('../controllers/recupcontroller'); 
 
 router.post('/cadastro', cadastrarUsuario); 
 router.get('/gerenciarusuario', checkAdminLevel, listarUsuarios); 
@@ -61,6 +62,8 @@ router.post('/editarusuario/:id', atualizarUsuario);
 router.get('/gerenciarobjeto', checkAdminLevel, gerenciarObjetos);
 router.get('/buscar', buscarObjetos);
 router.delete('/excluirImagem/:id', excluirImagem);
+router.get('/auditorias', checkAdminLevel, listarAuditorias, filtrarAuditorias);
+
 
 
 
@@ -390,6 +393,14 @@ router.get('/filtro-status', async (req, res) => {
       res.status(500).send('Erro ao buscar objetos.');
   }
 });
+
+
+//=======================
+
+
+
+
+
 
 
 

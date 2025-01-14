@@ -1,0 +1,42 @@
+<h1>Auditoria de Registros</h1>
+
+<div class="filter-container">
+        <form method="GET" action="/auditorias" onsubmit="filtrarAuditorias(event)">
+            <label for="dataInicio">Data Início:</label>
+            <input type="date" id="dataInicio" name="dataInicio" required>
+            
+            <label for="dataFim">Data Fim:</label>
+            <input type="date" id="dataFim" name="dataFim" required>
+            
+            <button type="submit">Filtrar</button>
+        </form>
+
+</div>
+
+<div class="table-container">
+    <table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Usuário</th>
+            <th>Tipo de Ação</th>
+            <th>Data</th>
+            <th>Detalhes</th>
+            <th>Resultado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each registros}}
+        <tr>
+            <td>{{this.id}}</td>
+            <td>{{this.id_usuario}}</td>
+            <td>{{this.tipo_acao}}</td>
+            <td>{{this.data_acao}}</td>
+            <td>{{this.detalhes}}</td>
+            <td>{{this.resultado}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+</div>
+

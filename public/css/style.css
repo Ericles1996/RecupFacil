@@ -741,3 +741,61 @@ h3, h4 {
     color: red;
 }
 
+/*===================================================
+            filtro da auditoria de registros
+====================================================*/
+
+.filter-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f9f9f9; /* Cor de fundo leve para destaque */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-container form {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.filter-container label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333; /* Cor mais escura para maior contraste */
+}
+
+.filter-container input[type="date"] {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+}
+
+.filter-container input[type="date"]:focus {
+    border-color: #007bff; /* Destaque ao foco */
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.filter-container button {
+    padding: 8px 15px;
+    font-size: 14px;
+    color: #000; /* Texto preto */
+    background-color: transparent; /* Fundo transparente */
+    border: 2px solid #000; /* Borda preta */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* Transição suave */
+}
+
+.filter-container button:hover {
+    background-color: #000; /* Fundo preto ao passar o mouse */
+    color: #fff; /* Texto branco ao passar o mouse */
+}

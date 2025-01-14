@@ -120,4 +120,29 @@ app.use((req, res, next) => {
 });
 
 
+//==============================================
+
+// Função para registrar ações no log de auditoria
+const logAudit = async (userId, actionType, details, result) => {
+  await db.query('INSERT INTO audit_log (user_id, action_type, details, result) VALUES (?, ?, ?, ?)', [userId, actionType, details, result]);
+};
+
+// Rota para adicionar um novo registro
+app.post('/add-record', async (req, res) => {
+  const userId = req.body.userId; // ID do usuário que está fazendo a ação
+  const recordDetails = req.body.details; // Detalhes do registro a ser adicionado
+
+  try {
+      // Lógica para adicionar o registro ao banco de dados
+      await db.query('INSERT INTO records (details) VALUES (?)', [recordDetails]);
+
+      // Registrar no log de auditoria
+      await logAudit(userId, 'inclusão', `Adicionado registro: ${recordDetails}`, 'sucesso');
+      res.status(201).send('Registro adicionado com sucesso.');
+  } catch (error) {
+      // Registrar falha no log de auditoria
+      await logAudit(userId, 'inclusão', `Falha ao adicionar registro: ${recordDetails}`, 'falha');
+      res.status(500).send('Erro ao adicionar registro.');
+  }
+});
 

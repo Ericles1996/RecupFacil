@@ -1,19 +1,23 @@
 
 <nav class="subguias-nav">
     <ul>
-        <li><a href="/postar">Publicar Objeto</a></li>
-            <li>
-         <form method="GET" action="/filtro">
-            <label for="filtro">Filtrar:</label>
-            <select id="filtro" name="filtro" onchange="this.form.submit()">
-                <option value="" disabled {{#ifEquals selectedFiltro ""}}selected{{/ifEquals}}>Selecione uma opção</option>
-                <option value="todos" {{#ifEquals selectedFiltro "todos"}}selected{{/ifEquals}}>Todos</option>
-                <option value="veiculo" {{#ifEquals selectedFiltro "veiculo"}}selected{{/ifEquals}}>Veículo</option>
-                <option value="eletronico" {{#ifEquals selectedFiltro "eletronico"}}selected{{/ifEquals}}>Eletrônico</option>
-                <option value="outro" {{#ifEquals selectedFiltro "outro"}}selected{{/ifEquals}}>Outros</option>
-            </select>
-        </form>
-
+        <div class="filter-container">
+            <li><a href="/postar">Publicar Objeto</a></li>
+        </div>
+        <li>
+            <div class="filter-container">
+                <form method="GET" action="/filtro">
+                    <label for="filtro">Filtrar:</label>
+                    <select id="filtro" name="filtro" onchange="this.form.submit()">
+                        <option value="" disabled {{#ifEquals selectedFiltro ""}}selected{{/ifEquals}}>Selecione uma opção</option>
+                        <option value="todos" {{#ifEquals selectedFiltro "todos"}}selected{{/ifEquals}}>Todos</option>
+                        <option value="veiculo" {{#ifEquals selectedFiltro "veiculo"}}selected{{/ifEquals}}>Veículo</option>
+                        <option value="eletronico" {{#ifEquals selectedFiltro "eletronico"}}selected{{/ifEquals}}>Eletrônico</option>
+                        <option value="outro" {{#ifEquals selectedFiltro "outro"}}selected{{/ifEquals}}>Outros</option>
+                    </select>
+                </form>
+            </div>
+        </li>
         
     </ul>
 </nav>

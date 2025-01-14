@@ -17,5 +17,6 @@ module.exports = {
     Objeto,
     Eletronico,
     Veiculo,
-    ImagensObjeto
+    ImagensObjeto,
+    
 };

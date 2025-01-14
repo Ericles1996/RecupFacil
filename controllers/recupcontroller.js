@@ -3,10 +3,31 @@ const bcrypt = require('bcrypt');
 const Usuario = require('../models/Usuario');
 const Telefone = require('../models/Telefone');
 const Endereco = require('../models/Endereco');
+const Auditoria = require('../models/Auditoria');
 const path = require('path');
 const { Op } = require('sequelize');
 
 const { Objeto, Eletronico, Veiculo,  ImagensObjeto} = require('../models'); 
+
+
+//==========================================
+//      auditoria de registros
+//==========================================
+
+async function registrarAuditoria(id_usuario, tipo_acao, detalhes, resultado) {
+    try {
+        await Auditoria.create({
+            id_usuario,
+            tipo_acao,
+            detalhes,
+            resultado,
+        });
+        console.log('Registro de auditoria salvo com sucesso.');
+    } catch (error) {
+        console.error('Erro ao salvar registro de auditoria:', error);
+    }
+}
+
 
 //============================================================
 //              cadastro de usuário
@@ -126,14 +147,19 @@ const listarUsuarios = async (req, res) => {
 //                     excluir usuarios
 //============================================================
 const excluirUsuario = async (req, res) => {
-    try {
-        const { id } = req.params;
+    const { id } = req.params; // ID do usuário a ser excluído
+    const idAdmin = req.session.userId; // ID do administrador que realizou a ação
+    const usuario = await Usuario.findByPk(id);
 
-        // Primeiro, exclui os objetos associados ao usuário
+    try {
+        // Primeiro, busca os objetos associados ao usuário
         const objetos = await Objeto.findAll({ where: { id_usuario: id } });
 
         for (const objeto of objetos) {
+            // Exclui as imagens associadas ao objeto
             await ImagensObjeto.destroy({ where: { id_objeto: objeto.id } });
+
+            // Exclui os registros associados às categorias específicas
             await Veiculo.destroy({ where: { id_objeto: objeto.id } });
             await Eletronico.destroy({ where: { id_objeto: objeto.id } });
         }
@@ -150,6 +176,14 @@ const excluirUsuario = async (req, res) => {
         // Exclui o usuário
         await Usuario.destroy({ where: { id } });
 
+        // Registrar auditoria (sucesso)
+        await registrarAuditoria(
+            idAdmin,
+            'Exclusão',
+            `Usuário com ID: ${id} NOME: ${usuario.nome} e seus dados associados foram excluídos.`,
+            'Sucesso'
+        );
+
         // Enviar uma resposta de sucesso
         res.send(`
             <script>
@@ -158,7 +192,16 @@ const excluirUsuario = async (req, res) => {
             </script>
         `);
     } catch (error) {
-        console.error(error);
+        console.error('Erro ao excluir usuário:', error);
+
+        // Registrar auditoria (falha)
+        await registrarAuditoria(
+            idAdmin,
+            'Exclusão',
+            `Tentativa de excluir o usuário com ID ${id}.`,
+            'Falha'
+        );
+
         res.status(500).json({ message: 'Erro ao excluir usuário' });
     }
 };
@@ -171,12 +214,26 @@ const excluirUsuario = async (req, res) => {
 const editarNivelPermissao = async (req, res) => {
     const { permission_level, status } = req.body; 
     const user_id = req.params.id; 
+    const idAdmin = req.session.userId; // ID do administrador que realizou a ação
 
     try {
+        // Verificar se o ID do administrador está disponível
+        if (!idAdmin) {
+            console.error('ID do administrador não definido. Auditoria não será registrada.');
+            return res.status(500).json({ message: 'Erro interno.' });
+        }
+
         // Verificar se o usuário existe
         const usuario = await Usuario.findByPk(user_id);
-        
+
         if (!usuario) {
+            await registrarAuditoria(
+                idAdmin,
+                'Edição',
+                `Tentativa de editar o nível de permissão ou status do usuário com ID ${user_id}, mas o usuário não foi encontrado.`,
+                'Falha'
+            );
+
             return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
@@ -186,16 +243,36 @@ const editarNivelPermissao = async (req, res) => {
                 nivel: permission_level, 
                 status: status 
             },
-            { where: { id: user_id } } 
+            { where: { id: user_id } }
+        );
+
+        // Registrar auditoria de sucesso
+        await registrarAuditoria(
+            idAdmin,
+            'Edição',
+            `Nível de permissão ou status do usuário com ID: ${user_id} nome: ${usuario.nome} foram atualizados. Novo nível: ${permission_level}, Novo status: ${status}.`,
+            'Sucesso'
         );
 
         // Redirecionar de volta para a página de gerenciamento de usuários
         res.redirect('/gerenciarusuario');
     } catch (error) {
         console.error('Erro ao atualizar o nível de permissão:', error);
+
+        // Registrar falha na auditoria
+        if (idAdmin) {
+            await registrarAuditoria(
+                idAdmin,
+                'Edição',
+                `Tentativa de atualizar o nível de permissão ou status do usuário com ID ${user_id}.`,
+                'Falha'
+            );
+        }
+
         res.status(500).json({ message: 'Erro ao atualizar o nível de permissão.' });
     }
 };
+
 
 //============================================================
 //          cadastro do objeto no banco de dados
@@ -308,22 +385,39 @@ const cadastrarObjeto = async (req, res) => {
 //                      edição do objeto (post)
 //============================================================
 
-const fs = require('fs');
-
 const editarObjeto = async (req, res) => {
+    const objetoId = req.params.id;
+    const idUsuario = req.session.userId; // ID do usuário que realizou a ação
+    const nivel = req.session.nivel;
+
     try {
-        
-        const objetoId = req.params.id;
+        // Verificar se o ID do usuário está disponível
+        if (!idUsuario) {
+            console.error('ID do usuário não definido. Auditoria não será registrada.');
+            return res.status(500).json({ error: 'Erro interno.' });
+        }
+
         console.log('ID do objeto:', objetoId);
 
         // Buscar objeto pelo ID
         const objeto = await Objeto.findByPk(objetoId);
         if (!objeto) {
             console.error('Objeto não encontrado no banco de dados.');
+
+            // Registrar auditoria de falha
+            await registrarAuditoria(
+                idUsuario,
+                'Edição',
+                `Tentativa de editar objeto com ID ${objetoId}, mas o objeto não foi encontrado.`,
+                'Falha'
+            );
+
             return res.status(404).json({ error: 'Objeto não encontrado.' });
         }
 
-  
+        // Buscar o usuário responsável pelo objeto
+        const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' é a chave estrangeira
+        
         const {
             reward, crimeType, color, crimeDetails, additionalInfo, status,
             category, identifier, modelEletronico, modelVehicle, brandVehicle,
@@ -338,32 +432,33 @@ const editarObjeto = async (req, res) => {
             det_crime: crimeDetails,
             inf_adicionais: additionalInfo,
             status: status,
-            categoria: category || objeto.categoria 
+            categoria: category || objeto.categoria
         });
         console.log('Objeto atualizado com sucesso.');
 
+        // Registrar auditoria de atualização do objeto principal
+        await registrarAuditoria(
+            idUsuario,
+            'Edição',
+            `Objeto com ID ${objetoId} foi atualizado. O objeto pertence ao usuário com id: ${usuarioResponsavel.id} nome: ${usuarioResponsavel.nome}`,
+            'Sucesso'
+        );
+
         // Verifica se há arquivos de imagem recebidos
-  
-const imagensExistentes = await ImagensObjeto.findAll({ where: { id_objeto: objeto.id } });
+        if (req.files && req.files.length > 0) {
+            const imagePaths = req.files.map(file => `/img/uploads/${file.filename}`);
 
-// Verificar se existem arquivos novos para upload
-if (req.files && req.files.length > 0) {
-    const imagePaths = req.files.map(file => `/img/uploads/${file.filename}`);
-
-
-
-    // Adiciona as novas imagens ao banco de dados
-    for (const imagePath of imagePaths) {
-        await ImagensObjeto.create({
-            id_objeto: objeto.id,
-            img1: imagePath
-        });
-    }
-    console.log('Novas imagens adicionadas com sucesso.');
-} else {
-    console.log('Nenhuma nova imagem recebida para atualização.');
-}
-
+            // Adiciona as novas imagens ao banco de dados
+            for (const imagePath of imagePaths) {
+                await ImagensObjeto.create({
+                    id_objeto: objeto.id,
+                    img1: imagePath
+                });
+            }
+            console.log('Novas imagens adicionadas com sucesso.');
+        } else {
+            console.log('Nenhuma nova imagem recebida para atualização.');
+        }
 
         // Atualizar tabela relacionada com base na categoria
         if (category === 'eletronico') {
@@ -413,7 +508,6 @@ if (req.files && req.files.length > 0) {
         }
 
         // Redirecionar com mensagem de sucesso
-        const nivel = req.session.nivel;
         const redirectUrl = nivel === '2' ? '/gerenciarobjeto' : '/meusobjetos';
 
         res.send(`
@@ -425,9 +519,22 @@ if (req.files && req.files.length > 0) {
 
     } catch (error) {
         console.error('Erro ao atualizar o objeto:', error);
+
+        // Registrar auditoria de falha
+        if (idUsuario) {
+            await registrarAuditoria(
+                idUsuario,
+                'Edição',
+                `Tentativa de editar objeto com ID ${objetoId}.`,
+                'Falha'
+            );
+        }
+
         res.status(500).json({ error: 'Erro ao atualizar o objeto.' });
     }
 };
+
+
 
 //====================================
 //          excluir imagem
@@ -559,41 +666,57 @@ const listarObjetosUsuario = async (req, res) => {
 
 
 const excluirObjeto = async (req, res) => {
-    try {
-        const objetoId = req.params.id;
+    const objetoId = req.params.id;
+    const idUsuario = req.session.userId; // ID do usuário que realizou a ação
+    const nivel = req.session.nivel;
 
-        // Primeiro, tente encontrar o objeto para verificar sua categoria
-        const objeto = await Objeto.findOne({
-            where: { id: objetoId }
-        });
+    try {
+        // Verificar se o ID do usuário está disponível
+        if (!idUsuario) {
+            console.error('ID do usuário não definido. Auditoria não será registrada.');
+            return res.status(500).json({ message: 'Erro interno.' });
+        }
+
+        // Tenta encontrar o objeto para verificar sua categoria
+        const objeto = await Objeto.findOne({ where: { id: objetoId } });
 
         if (!objeto) {
-            // Se o objeto não for encontrado, já envia uma resposta e encerra a execução
+            // Registrar auditoria de falha
+            await registrarAuditoria(
+                idUsuario,
+                'Exclusão',
+                `Tentativa de excluir o objeto com ID ${objetoId}, mas o objeto não foi encontrado.`,
+                'Falha'
+            );
+
             return res.status(404).json({ error: 'Objeto não encontrado.' });
         }
 
-        // Exclui as imagens associadas ao objeto (se houver)
-        await ImagensObjeto.destroy({
-            where: { id_objeto: objetoId }
-        });
+        const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' é a chave estrangeira
+       
 
-        // Verifica a categoria e exclui os registros relacionados de Eletronico ou Veiculo
+        // Excluir imagens associadas ao objeto
+        await ImagensObjeto.destroy({ where: { id_objeto: objetoId } });
+
+        // Verificar a categoria e excluir registros relacionados
         if (objeto.categoria === 'eletronico') {
-            await Eletronico.destroy({
-                where: { id_objeto: objetoId }
-            });
+            await Eletronico.destroy({ where: { id_objeto: objetoId } });
         } else if (objeto.categoria === 'veiculo') {
-            await Veiculo.destroy({
-                where: { id_objeto: objetoId }
-            });
+            await Veiculo.destroy({ where: { id_objeto: objetoId } });
         }
 
-        // Exclui o objeto da tabela OBJETO
-        await Objeto.destroy({
-            where: { id: objetoId }
-        });          
-        
-        const nivel = req.session.nivel;
+        // Excluir o objeto da tabela OBJETO
+        await Objeto.destroy({ where: { id: objetoId } });
+
+        // Registrar auditoria de sucesso
+        await registrarAuditoria(
+            idUsuario,
+            'Exclusão',
+            `Objeto com ID ${objetoId} e categoria ${objeto.categoria} foi excluído. O objeto pertence ao usuário com id: ${usuarioResponsavel.id} nome: ${usuarioResponsavel.nome}`,
+            'Sucesso'
+        );
+
+        // Redirecionar para a página correta com mensagem de sucesso
         if (nivel === '2') {
             res.send(`
                 <script>
@@ -610,10 +733,22 @@ const excluirObjeto = async (req, res) => {
             `);
         }
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Erro ao cadastrar usuário' });
+        console.error('Erro ao excluir objeto:', error);
+
+        // Registrar auditoria de falha
+        if (idUsuario) {
+            await registrarAuditoria(
+                idUsuario,
+                'Exclusão',
+                `Tentativa de excluir o objeto com ID ${objetoId}.`,
+                'Falha'
+            );
+        }
+
+        res.status(500).json({ message: 'Erro ao excluir objeto.' });
     }
 };
+
 
 
 //============================================================
@@ -1038,6 +1173,85 @@ const buscarObjetos = async (req, res) => {
     }
 };
 
+
+//==============================================================
+//              exibir a auditoria de registros
+//=============================================================
+
+const moment = require('moment'); 
+
+async function listarAuditorias(req, res) {
+    try {
+        const registros = await Auditoria.findAll({
+            include: [
+                {
+                    model: Usuario,
+                    attributes: ['id', 'nome'], 
+                },
+            ],
+            order: [['data_acao', 'DESC']], 
+        });
+
+
+        const registrosFormatados = registros.map(registro => ({
+            ...registro.toJSON(), 
+            data_acao: moment(registro.data_acao).format('YYYY-MM-DD HH:mm:ss'),
+        }));
+
+
+        res.render('auditorias', { registros: registrosFormatados });
+    } catch (error) {
+        console.error('Erro ao listar auditorias:', error);
+        res.status(500).send('Erro ao listar auditorias.');
+    }
+}
+
+
+//===============================================================
+            //filtro de auditorias
+//===============================================================
+
+
+async function filtrarAuditorias(req, res) {
+    try {
+        // Recebe os parâmetros de data do formulário
+        const { dataInicio, dataFim } = req.query;
+
+        // Valida se as datas foram fornecidas
+        if (!dataInicio || !dataFim) {
+            return res.status(400).send('Por favor, forneça as datas de início e fim.');
+        }
+
+        // Converte as datas para o formato adequado
+        const dataInicioFormatada = moment(dataInicio, 'YYYY-MM-DD').startOf('day').toDate();
+        const dataFimFormatada = moment(dataFim, 'YYYY-MM-DD').endOf('day').toDate();
+
+        // Busca os registros de auditoria no intervalo de datas
+        const registros = await Auditoria.findAll({
+            where: {
+                data_acao: {
+                    [Op.between]: [dataInicioFormatada, dataFimFormatada],
+                },
+            },
+            include: [
+                {
+                    model: Usuario,
+                    attributes: ['id', 'nome'], // Campos desejados do Usuario
+                },
+            ],
+            order: [['data_acao', 'DESC']], // Ordenação pela data da ação (opcional)
+        });
+
+        // Renderiza a view com os registros encontrados
+        res.render('auditorias', { registros });
+    } catch (error) {
+        console.error('Erro ao listar auditorias:', error);
+        res.status(500).send('Erro ao listar auditorias.');
+    }
+}
+
+
+
 module.exports = {
     cadastrarUsuario,
     listarUsuarios,
@@ -1059,7 +1273,10 @@ module.exports = {
     atualizarUsuario,
     gerenciarObjetos,
     buscarObjetos,
-    excluirImagem
+    excluirImagem,
+    registrarAuditoria,
+    listarAuditorias,
+    filtrarAuditorias
     
     
     
