@@ -4,21 +4,6 @@ const Handlebars = require('handlebars');
 const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
-const SequelizeStore = require('connect-session-sequelize')(session.Store);
-const { sequelize } = require('./models');
-
-app.use(session({
-    secret: 'seuSegredo',
-    store: new SequelizeStore({
-        db: sequelize,
-    }),
-    resave: false,
-    saveUninitialized: false,
-    proxy: true,
-    cookie: {
-        maxAge: 1000 * 60 * 60 // 1 hora
-    }
-}));
 
 
 const routes = require('./routes/index'); 
