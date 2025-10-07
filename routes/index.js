@@ -120,7 +120,7 @@ router.get('/', (req, res) => {
         nivel: req.session.nivel
     });
   } else {
-    return res.redirect('/login');
+    return res.redirect('/home');
   }
 });
 
