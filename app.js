@@ -47,12 +47,21 @@ Handlebars.registerHelper('getFileName', function (path) {
 
 
 // Configuração do middleware express-session
-app.use(session({
-  secret: 'R$#vn8x*2G6z7@X5&8b94NdMswP1Q', 
-  resave: false,            // Evita resalvar a sessão se ela não foi modificada
-  saveUninitialized: false, // Evita salvar sessões não inicializadas
-  cookie: { secure: false } // Defina como true se estiver usando HTTPS
-}));
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const sequelize = require("./models/database"); // seu arquivo de conexão Sequelize
+
+app.use(
+  session({
+    secret: "R$#vn8x*2G6z7@X5&8b94NdMswP1Q",
+    store: new SequelizeStore({
+      db: sequelize,
+    }),
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false },
+  })
+);
+
 
 app.use(express.urlencoded({ extended: true }));
 
