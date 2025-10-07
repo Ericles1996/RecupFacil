@@ -20,7 +20,7 @@ require('dotenv').config();
 const app = express();
 
 
-
+ 
 
 app.use('/uploads', express.static('public/img/uploads'));
 

@@ -1,5 +1,5 @@
 // controllers/userController.js
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
 const Telefone = require('../models/Telefone');
 const Endereco = require('../models/Endereco');
