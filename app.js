@@ -7,7 +7,7 @@ const session = require('express-session');
 
 const routes = require('./routes/index'); 
 const db = require('./config/database');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const methodOverride = require('method-override');
 const { engine } = require('express-handlebars');
 const { Usuario } = require('./models');
