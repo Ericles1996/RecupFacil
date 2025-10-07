@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 const { engine } = require('express-handlebars');
 const { Usuario } = require('./models');
+require('dotenv').config();
 
 
 
