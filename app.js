@@ -48,7 +48,7 @@ Handlebars.registerHelper('getFileName', function (path) {
 
 // Configuração do middleware express-session
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
-const sequelize = require("./models/database"); // seu arquivo de conexão Sequelize
+const sequelize = require("./config/database.js"); // seu arquivo de conexão Sequelize
 
 app.use(
   session({
