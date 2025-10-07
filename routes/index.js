@@ -67,24 +67,22 @@ router.get('/auditorias', checkAdminLevel, listarAuditorias, filtrarAuditorias);
 
 
 
-router.get('/meusobjetos', checkAuth, listarObjetosUsuario, async (req, res) => {
+router.get('/meusobjetos', checkAuth, async (req, res) => {
   try {
-      const objetos = await Objeto.findAll({
-          where: { id_usuario: req.session.userId }, 
-          include: [{
-              model: ImagensObjeto,
-              as: 'imagens' 
-          }]
-      });
-      
- 
-      console.log(objetos);
-      
+    const objetos = await Objeto.findAll({
+      where: { id_usuario: req.session.userId }, 
+      include: [{ model: ImagensObjeto, as: 'imagens' }]
+    });
+    
+    const usuario = await Usuario.findByPk(req.session.userId);
 
-      res.render('meusobjetos', { objetos });
+    return res.render('meusobjetos', { 
+      objetos, 
+      nomeUsuario: usuario ? usuario.nome : null 
+    });
   } catch (error) {
-      console.error('Erro ao listar objetos:', error);
-      res.status(500).send('Erro ao listar objetos');
+    console.error(error);
+    return res.status(500).send('Erro ao listar objetos');
   }
 });
 
@@ -112,38 +110,19 @@ router.get('/editarNivel/:id', async (req, res) => {
 });
 
 
-router.get('/meusobjetos', checkAuth, async (req, res) => {
-    try {
-        // Recupera o usuário logado usando o ID armazenado na sessão
-        const usuario = await Usuario.findByPk(req.session.userId);
-
-        if (!usuario) {
-            return res.redirect('/login'); // Se não encontrar o usuário, redireciona para o login
-        }
-
-        // Envia o nome do usuário para a view
-        res.render('meusobjetos', { nomeUsuario: usuario.nome });
-    } catch (error) {
-        console.error('Erro ao buscar o usuário logado:', error);
-        res.status(500).send('Erro no servidor.');
-    }
-});
-
 
 // Rota para a página inicial
 router.get('/', (req, res) => {
   if (req.session.userId) {
     console.log('Sessão:', req.session); 
-
-    res.render('home', {
+    return res.render('home', {
         nomeUsuario: req.session.nomeUsuario,
         nivel: req.session.nivel
     });
-} else {
-    res.redirect('/login');
-}res.redirect('/login');
-}
-);
+  } else {
+    return res.redirect('/login');
+  }
+});
 
 
 // Rota para a página de login
