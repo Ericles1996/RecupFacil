@@ -131,7 +131,7 @@ router.get('/meusobjetos', checkAuth, async (req, res) => {
 
 
 // Rota para a página inicial
-router.get('/home', (req, res) => {
+router.get('/', (req, res) => {
   if (req.session.userId) {
     console.log('Sessão:', req.session); 
 
