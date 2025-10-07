@@ -50,15 +50,21 @@ Handlebars.registerHelper('getFileName', function (path) {
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sequelize = require("./config/database.js"); // seu arquivo de conexão Sequelize
 
+const store = new SequelizeStore({
+  db: sequelize,       // algumas versões aceitam 'sequelize' em vez de 'db'
+  checkExpirationInterval: 15 * 60 * 1000, // opcional: limpeza a cada 15 minutos
+  expiration: 24 * 60 * 60 * 1000 // opcional: expiração da sessão em 1 dia
+});
+
+store.sync(); // importantíssimo: cria tabela de sessões se não existir
+
 app.use(
   session({
     secret: "R$#vn8x*2G6z7@X5&8b94NdMswP1Q",
-    store: new SequelizeStore({
-      db: sequelize,
-    }),
+    store: store,
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false },
+    cookie: { secure: false }
   })
 );
 
