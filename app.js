@@ -113,9 +113,7 @@ app.listen(PORT, () => {
 });
 
 // Rota de teste para home
-app.get('/', (req, res) => {
-  res.render('home', { activePage: 'home' });
-});
+
 
 // Rota para Meus Objetos
 app.get('/meusobjetos', (req, res) => {
