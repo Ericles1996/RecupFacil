@@ -1,100 +1,99 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/style.css"> 
-    <title>Recuperafacil</title>
-     <!-- Navbar Principal -->
-<nav class="navbar">
-<div class="logo"><a href="/home">RecupFácil</a></div>
-
-    <div class="container">
-        <div class="menu-icon" onclick="toggleMenu()">☰</div>
-        <ul class="menu">
-            <li><a href="/home" id="menu-home">HOME</a></li>
-            <li><a href="/meusobjetos" id="menu-meus-objetos">MEUS OBJETOS</a></li>
-            <li><a href="/contato" id="menu-contato">CONTATO</a></li>
-            <li><a href="/ajuda" id="menu-ajuda">AJUDA</a></li>
-            <li class="admin-menu">
-                <a href="#" id="menu-admin">ADMIN <span class="arrow-down">▼</span></a>
-                <ul class="dropdown">
-                    <li><a href="/gerenciarusuario">Gerenciar Usuário</a></li>
-                    <li><a href="/gerenciarobjeto">Gerenciar Objetos</a></li>
-                    <li><a href="/auditorias">Auditoria de Registros</a></li>
-                    
-                </ul>
-            </li>
-        </ul>
-    </div>
-</nav>
-
-    <!-- Campo de Busca -->
-    <div class="search-bar">
-<form action="/buscar" method="GET" class="search-bar">
-    <input type="text" name="termo" placeholder="Buscar..." required>
-    <button type="submit" class="search-icon">🔍</button>
-</form>
-
-    </div>
-
-
-
-    <!-- Segunda Navbar com Cadastro e Login -->
-    <nav class="login-signup-bar">
-       
-        <li class="user-menu">
-            {{#if nomeUsuario}}
-                <a href="/" class="dropdown-toggle">Olá, {{nomeUsuario}}! <span class="arrow-down">▼</span></a>
-                <ul class="dropdown">                    
-                    <li><a href="/meusdados">Meus Dados</a></li>
-                    <li><a href="/logout">Logout</a></li>
-                </ul>
-            {{else}}
-                <a href="/cadastro">CADASTRO</a>
-                <a href="/login">LOGIN</a>
-            {{/if}}
-        </li>
-
-        
-    </nav>
-
-
-    <script src="/js/script.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RecupFácil</title>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 
-<body>
-    {{{body}}}
-    <br><br>
-</body>
-  
-    <!-- Rodapé -->
-    <footer class="main-footer">
-        <div class="footer-container">
-            <div class="footer-section">
-                <h4>Sobre Nós</h4>
-                <p>Saiba mais sobre nosso projeto e nossa missão de ajudar na recuperação de itens roubados ou furtados.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Contato</h4>
-                <p>Email: arqbackuper@gmail.com</p>
-                <p>Telefone: (93) 99104-6566</p>
-            </div>
-            <div class="footer-section">
-                <h4>Links Úteis</h4>
-                <ul>
-                    <li><a href="/home">Home</a></li>
-                    <li><a href="/sobre">Sobre</a></li>
-                    <li><a href="/comodenunciar">Como Denunciar</a></li>
-                    <li><a href="/ajuda">Ajuda</a></li>
-                    <li><a href="/contato">Contato</a></li>
-                    
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; Ericles Fernandes de Almeida 2024. Todos os direitos reservados.</p>
-        </div>
-    </footer>
+<body data-nivel="{{nivel}}">
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="container nav-inner">
+        <a class="logo" href="/home">RecupFácil</a>
 
+        <button class="menu-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="primary-menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+
+        <ul id="primary-menu" class="menu">
+          <li><a href="/home" id="menu-home">Home</a></li>
+          <li><a href="/dashboard" id="menu-dashboard">Dashboard</a></li>
+          <li><a href="/meusobjetos" id="menu-meus-objetos">Meus Objetos</a></li>
+          <li><a href="/contato" id="menu-contato">Contato</a></li>
+          <li><a href="/ajuda" id="menu-ajuda">Ajuda</a></li>
+          <li class="menu-dropdown">
+            <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" id="menu-admin">Admin</button>
+            <ul class="dropdown">
+              <li><a href="/gerenciarusuario">Gerenciar Usuário</a></li>
+              <li><a href="/gerenciarobjeto">Gerenciar Objetos</a></li>
+              <li><a href="/auditorias">Auditoria de Registros</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="search-wrap">
+      <form action="/buscar" method="GET" class="search-bar">
+        <input type="text" name="termo" placeholder="Buscar..." required />
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+    </div>
+
+    <nav class="userbar">
+      <div class="container">
+        <ul class="user-actions">
+          {{#if nomeUsuario}}
+            <li class="menu-dropdown">
+              <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">Olá, {{nomeUsuario}}</button>
+              <ul class="dropdown">
+                <li><a href="/meusdados">Meus Dados</a></li>
+                <li><a href="/logout">Logout</a></li>
+              </ul>
+            </li>
+          {{else}}
+            <li><a class="btn btn-ghost" href="/cadastro">Cadastro</a></li>
+            <li><a class="btn btn-secondary" href="/login">Login</a></li>
+          {{/if}}
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <main class="site-main container">
+    {{{body}}}
+  </main>
+
+  <footer class="main-footer">
+    <div class="container footer-container">
+      <div class="footer-section">
+        <h4>Sobre Nós</h4>
+        <p>Projeto para facilitar a recuperação de itens perdidos, roubados ou furtados.</p>
+      </div>
+      <div class="footer-section">
+        <h4>Contato</h4>
+        <p>Email: arqbackuper@gmail.com</p>
+        <p>Telefone: (93) 99104-6566</p>
+      </div>
+      <div class="footer-section">
+        <h4>Links Úteis</h4>
+        <ul>
+          <li><a href="/home">Home</a></li>
+          <li><a href="/comodenunciar">Como Denunciar</a></li>
+          <li><a href="/ajuda">Ajuda</a></li>
+          <li><a href="/contato">Contato</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; Ericles Fernandes de Almeida 2024. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="/js/script.js"></script>
+</body>
 </html>

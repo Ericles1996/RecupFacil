@@ -1,65 +1,51 @@
-<div class="article-content">
-    <h1>Meus Dados</h1>
-    <p><strong>Nome:</strong> {{usuario.nome}}</p>
-    <p><strong>Email:</strong> {{usuario.email}}</p>
-    <p><strong>CPF:</strong> {{usuario.cpf}}</p>
-    <p><strong>Sexo:</strong> {{usuario.sexo}}</p>
-    <p><strong>Data de Nascimento:</strong> {{usuario.data_nascimento}}</p>
-    <p><strong>Nível:</strong> {{usuario.nivel}}</p>
-    <p><strong>Status:</strong> {{usuario.status}}</p>
+<div class="container">
+  <section class="data-card">
+    <header class="data-header">
+      <h1>Meus Dados</h1>
+      <a class="btn btn-secondary" href="/editarusuario/{{usuario.id}}">Editar Dados</a>
+    </header>
 
-    <br>
+    <div class="data-grid">
+      <div class="row"><span class="key">Nome</span><span class="value">{{usuario.nome}}</span></div>
+      <div class="row"><span class="key">Email</span><span class="value">{{usuario.email}}</span></div>
+      <div class="row"><span class="key">CPF</span><span class="value">{{usuario.cpf}}</span></div>
+      <div class="row"><span class="key">Sexo</span><span class="value">{{usuario.sexo}}</span></div>
+      <div class="row"><span class="key">Nascimento</span><span class="value">{{usuario.data_nascimento}}</span></div>
+      <div class="row"><span class="key">Nível</span><span class="value">{{usuario.nivel}}</span></div>
+      <div class="row"><span class="key">Status</span><span class="value">{{usuario.status}}</span></div>
+    </div>
 
-    <!-- Exibir dados do telefone -->
-    <div class="telefone-info">
-        <h2>Dados do Telefone</h2>
-    {{#if usuario.Telefones.length}}
-    <ul>
-        {{#each usuario.Telefones}}
-            <li>
-           
-            
-                <strong>Número: </strong> {{this.numero}} ({{this.tipo}})
+    <section class="data-section">
+      <h2 class="section-title">Telefones</h2>
+      {{#if usuario.Telefones.length}}
+        <ul class="chip-list">
+          {{#each usuario.Telefones}}
+            <li class="chip">{{this.numero}} <span class="chip-meta">({{this.tipo}})</span></li>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="muted">Nenhum telefone cadastrado.</p>
+      {{/if}}
+    </section>
 
-               
+    <section class="data-section">
+      <h2 class="section-title">Endereços</h2>
+      {{#if usuario.Enderecos.length}}
+        <ul class="address-list">
+          {{#each usuario.Enderecos}}
+            <li class="address-item">
+              <span><strong>Rua:</strong> {{this.rua}}</span>
+              <span><strong>Número:</strong> {{this.numero}}</span>
+              <span><strong>Bairro:</strong> {{this.bairro}}</span>
+              <span><strong>Cidade:</strong> {{this.cidade}}</span>
+              <span><strong>Estado:</strong> {{this.estado}}</span>
             </li>
-        {{/each}}
-    </ul>
-{{else}}
-    <p>Nenhum telefone cadastrado.</p>
-{{/if}}
-
-    </div>
-
-    <br>
-
-    <!-- Exibir dados do endereço -->
-    <div class="endereco-info">
-        <h2>Dados do Endereço</h2>
-        {{#if usuario.Enderecos.length}}
-            <ul>
-                {{#each usuario.Enderecos}}
-                    <li>
-
-                        <strong>Rua:</strong> {{this.rua}} <br>
-                        <strong>Número:</strong> {{this.numero}} <br>
-                        <strong>Bairro:</strong> {{this.bairro}} <br>
-                        <strong>Cidade:</strong> {{this.cidade}} <br>
-                        <strong>Estado:</strong> {{this.estado}} <br>
-                  
-                   
-                        </form>
-                    </li>
-                {{/each}}
-            </ul>
-        {{else}}
-            <p>Nenhum endereço cadastrado.</p>
-        {{/if}}
-    </div>
-    <br>
-    <div class="form-actions">
-        <button onclick="location.href='/editarusuario/{{usuario.id}}'" class="btn-editar">Editar Dados</button>
-
-        
-    </div>
+          {{/each}}
+        </ul>
+      {{else}}
+        <p class="muted">Nenhum endereço cadastrado.</p>
+      {{/if}}
+    </section>
+  </section>
 </div>
+

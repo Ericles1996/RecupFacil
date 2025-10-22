@@ -1,0 +1,212 @@
+<nav class="subguias-nav">
+  <ul>
+    <div class="filter-container">
+      <li><a class="btn btn-primary" href="/postar">Adicionar Registro</a></li>
+    </div>
+    <li>
+      <div class="filter-container">
+        <form class="filter-form" method="GET" action="/dashboard">
+          <label for="status">Status</label>
+          <select id="status" name="status" onchange="this.form.submit()" title="Filtrar por status">
+            <option value="todos" {{#ifEquals filtros.status "todos"}}selected{{/ifEquals}}>Todos</option>
+            <option value="Roubado" {{#ifEquals filtros.status "Roubado"}}selected{{/ifEquals}}>Roubado</option>
+            <option value="Furtado" {{#ifEquals filtros.status "Furtado"}}selected{{/ifEquals}}>Furtado</option>
+            <option value="Recuperado" {{#ifEquals filtros.status "Recuperado"}}selected{{/ifEquals}}>Recuperado</option>
+          </select>
+          <label for="categoria">Tipo</label>
+          <select id="categoria" name="categoria" onchange="this.form.submit()" title="Filtrar por tipo">
+            <option value="todas" {{#ifEquals filtros.categoria "todas"}}selected{{/ifEquals}}>Todas</option>
+            <option value="eletronico" {{#ifEquals filtros.categoria "eletronico"}}selected{{/ifEquals}}>Eletrônico</option>
+            <option value="veiculo" {{#ifEquals filtros.categoria "veiculo"}}selected{{/ifEquals}}>Veículo</option>
+            <option value="outro" {{#ifEquals filtros.categoria "outro"}}selected{{/ifEquals}}>Outros</option>
+          </select>
+          <label for="periodo">Período</label>
+          <select id="periodo" name="periodo" onchange="this.form.submit()" title="Filtrar por período">
+            <option value="todos" {{#ifEquals filtros.periodo "todos"}}selected{{/ifEquals}}>Todos</option>
+            <option value="30" {{#ifEquals filtros.periodo "30"}}selected{{/ifEquals}}>Últimos 30 dias</option>
+            <option value="90" {{#ifEquals filtros.periodo "90"}}selected{{/ifEquals}}>Últimos 90 dias</option>
+            <option value="365" {{#ifEquals filtros.periodo "365"}}selected{{/ifEquals}}>Últimos 12 meses</option>
+          </select>
+        </form>
+      </div>
+    </li>
+  </ul>
+</nav>
+
+<style>
+  .dashboard {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .card { background: #fff; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .card h3 { font-size: 14px; color: #555; margin: 0 0 8px; }
+  .card .value { font-size: 24px; font-weight: 700; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  #chartContainer, #mapContainer { background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  #map { width: 100%; height: 360px; border-radius: 8px; }
+  .recent {
+    background: #fff; border-radius: 8px; padding: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .recent table { width: 100%; border-collapse: collapse; }
+  .recent th, .recent td { padding: 8px 6px; border-bottom: 1px solid #eee; font-size: 14px; }
+  .status-badge { padding: 4px 8px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 600; }
+  .status-Roubado { background: #d9534f; }
+  .status-Furtado { background: #f0ad4e; }
+  .status-Recuperado { background: #5cb85c; }
+  .obj-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
+  .table-actions a { color: #007bff; text-decoration: none; }
+  @media (max-width: 960px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: 1fr; }
+  }
+</style>
+
+<section class="dashboard">
+  <div class="cards">
+    <div class="card">
+      <h3>Total de Objetos</h3>
+      <div class="value">{{stats.totalObjetos}}</div>
+    </div>
+    <div class="card">
+      <h3>Total Recuperados</h3>
+      <div class="value" style="color:#2e7d32">{{stats.totalRecuperados}}</div>
+    </div>
+    <div class="card">
+      <h3>Em Andamento</h3>
+      <div class="value" style="color:#d32f2f">{{stats.emAndamento}}</div>
+    </div>
+    <div class="card">
+      <h3>Taxa de Recuperação</h3>
+      <div class="value">{{stats.taxaRecuperacao}}%</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div id="chartContainer">
+      <h3 style="margin:0 0 8px; color:#333; font-size:16px">Roubos por mês (12 meses)</h3>
+      <canvas id="roubosChart" height="120"></canvas>
+      <p style="color:#666; font-size:13px; margin-top:8px;">Observação: sem timestamps nos registros, a tendência mensal depende de registros futuros.</p>
+    </div>
+    <div id="mapContainer">
+      <h3 style="margin:0 0 8px; color:#333; font-size:16px">Mapa de Registros Recentes</h3>
+      <div id="map"></div>
+      <p style="color:#666; font-size:13px; margin-top:8px;">Localização aproximada a partir do endereço do usuário.</p>
+    </div>
+  </div>
+
+  <div class="recent">
+    <h3 style="margin:0 0 8px; color:#333; font-size:16px">Objetos Recentes</h3>
+    <div style="overflow:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Imagem</th>
+            <th>Crime</th>
+            <th>Status</th>
+            <th>Categoria</th>
+            <th>Local</th>
+            <th>Detalhes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each objetosRecentes}}
+          <tr>
+            <td>
+              {{#if img}}
+                <img class="obj-thumb" src="{{img}}" alt="objeto" />
+              {{else}}
+                —
+              {{/if}}
+            </td>
+            <td>{{crime}}</td>
+            <td>
+              <span class="status-badge status-{{status}}">{{status}}</span>
+            </td>
+            <td>{{categoria}}</td>
+            <td>{{#if cidade}}{{cidade}}{{#if bairro}}, {{bairro}}{{/if}}{{else}}—{{/if}}</td>
+            <td class="table-actions"><a href="/viewObjetos/{{id}}">Ver</a></td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+  // Gráfico (linhas ou barras)
+  const ctx = document.getElementById('roubosChart');
+  const chartData = {
+    labels: {{json chart.labels}},
+    datasets: [{
+      label: 'Roubos',
+      data: {{json chart.values}},
+      backgroundColor: 'rgba(220, 53, 69, 0.25)',
+      borderColor: '#dc3545',
+      borderWidth: 2,
+      tension: 0.25,
+      fill: true
+    }]
+  };
+  new Chart(ctx, { type: 'line', data: chartData, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }});
+
+  // Mapa (Leaflet) com geocodificação Nominatim no client
+  const map = L.map('map');
+  const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  const objetos = {{json objetosRecentes}};
+  const markers = [];
+  let bounds = [];
+
+  async function geocode(address) {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+    try {
+      const res = await fetch(url, { headers: { 'Accept-Language': 'pt-BR' } });
+      const data = await res.json();
+      if (data && data[0]) {
+        return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+      }
+    } catch (e) { /* silencioso */ }
+    return null;
+  }
+
+  (async () => {
+    // Centro padrão (Brasil) caso nada seja encontrado
+    let anyPlaced = false;
+    for (const o of objetos) {
+      if (!o.cidade && !o.bairro && !o.rua) continue;
+      const parts = [o.rua, o.bairro, o.cidade].filter(Boolean);
+      const addr = parts.join(', ');
+      const pos = await geocode(addr);
+      if (pos) {
+        const m = L.marker([pos.lat, pos.lon]).addTo(map).bindPopup(`<strong>${o.crime}</strong><br>Status: ${o.status}<br>${addr}`);
+        markers.push(m);
+        bounds.push([pos.lat, pos.lon]);
+        anyPlaced = true;
+      }
+      // Respeitar Nominatim rate limit simples (~1 req/seg)
+      await new Promise(r => setTimeout(r, 1100));
+    }
+    if (anyPlaced && bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [20, 20] });
+    } else {
+      map.setView([-14.2350, -51.9253], 4); // Brasil
+    }
+  })();
+</script>

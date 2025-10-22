@@ -1,26 +1,24 @@
-    <br>
+<br>
     <div class="login-container">
-        <h2>Cadastro Usuário</h2>
+        <h2>Cadastro Usu&aacute;rio</h2>
         <form action="/cadastro" method="POST">
             <div class="form-group">
                 <label for="username">Nome Completo: <span style="color: red;">*</span></label>
                 <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
+            </div><div class="form-group">
                 <label for="cpf">CPF: <span style="color: red;">*</span></label>
                 <input type="text" id="cpf" name="cpf" required>
             </div>
             <div class="form-group">
-                <label for="email">E-mail: <span style="color: red;">*</span></label>
-                <input type="email" id="email" name="email" required>
+                <label for="email">E-mail</label>
+                <input id="email" name="email" type="email" class="form-control" required aria-describedby="emailHelp" />
+                <div id="emailError" class="invalid-feedback" style="display:none;">Por favor, informe um e-mail v&aacute;lido.</div>
             </div>
             <div class="form-group">
                 <label for="password">Senha:</label>
                 <div style="position: relative;">
                     <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
-                    <button type="button" id="togglePassword" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%);">
-                        👁️
-                    </button>
+                    <button type="button" id="togglePassword" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%);">Mostrar</button>
                 </div>
             </div>
 
@@ -28,9 +26,7 @@
                 <label for="confirm_password">Confirme a Senha:</label>
                 <div style="position: relative;">
                     <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirme sua senha" required>
-                    <button type="button" id="toggleConfirmPassword" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%);">
-                        👁️
-                    </button>
+                    <button type="button" id="toggleConfirmPassword" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%);">Mostrar</button>
                 </div>
             </div>
 
@@ -68,7 +64,7 @@
                 </select>
             </div>
 
-            <!-- Campos de Endereço -->
+            <!-- Campos de Endere&ccedil;o -->
             <div class="form-group">
                 <label for="state">Estado: <span style="color: red;">*</span></label>
                 <input type="text" id="state" name="state" required>
@@ -86,7 +82,7 @@
                 <input type="text" id="street" name="street" required>
             </div>
             <div class="form-group">
-                <label for="number">Número: <span style="color: red;">*</span></label>
+                <label for="number">N&uacute;mero: <span style="color: red;">*</span></label>
                 <input type="text" id="number" name="number" required>
             </div>
             <div class="form-group">
@@ -94,11 +90,11 @@
                 <input type="text" id="cep" name="cep" required>
             </div>
 
-            <!-- Nível de permissão oculto -->
+            <!-- N&iacute;vel de permiss&atilde;o oculto -->
               <div class="form-group">
-                <label for="permission_level">Nível de Permissão:</label>
+                <label for="permission_level">N&iacute;vel de Permiss&atilde;o:</label>
                 <select id="permission_level" name="permission_level" required>
-                    <option value="1">1 - Usuário</option>
+                    <option value="1">1 - Usu&aacute;rio</option>
                 </select>
             </div>
             
@@ -108,6 +104,57 @@
             </div>
 
         </form>
-        <p>Já tem uma conta? <a href="/login">Faça login</a></p>
+        <p>J&aacute; tem uma conta? <a href="/login">Fa&ccedil;a login</a></p>
     </div>
+
+    <script>
+(function(){
+  var email = document.getElementById('email');
+  var emailError = document.getElementById('emailError');
+  if(!email) return;
+
+  function validate(){
+    if(email.validity.valid){
+      email.classList.remove('is-invalid');
+      email.classList.add('is-valid');
+      emailError.style.display = 'none';
+    } else {
+      email.classList.remove('is-valid');
+      email.classList.add('is-invalid');
+      emailError.style.display = 'block';
+    }
+  }
+
+  email.addEventListener('input', validate);
+  email.addEventListener('blur', validate);
+
+  var form = email.closest('form');
+  if(form){
+    form.addEventListener('submit', function(e){
+      if(!email.checkValidity()){
+        validate();
+        e.preventDefault();
+        email.focus();
+      }
+    });
+  }
+
+  // Toggle visibilidade das senhas
+  var pass = document.getElementById('password');
+  var passBtn = document.getElementById('togglePassword');
+  var pass2 = document.getElementById('confirm_password');
+  var pass2Btn = document.getElementById('toggleConfirmPassword');
+  function toggle(btn, input){
+    if(!btn || !input) return;
+    btn.addEventListener('click', function(){
+      var isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      btn.textContent = isPwd ? 'Ocultar' : 'Mostrar';
+    });
+  }
+  toggle(passBtn, pass);
+  toggle(pass2Btn, pass2);
+})();
+</script>
+
 

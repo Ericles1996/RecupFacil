@@ -1,80 +1,93 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalhes do Objeto</title>
-    <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-    <div class="objetos-container">
-        <h1>Detalhes do Objeto</h1>
-        
-<div class="imagem-container">
-    {{#each objeto.imagens}}
-        <img src="{{this.img1}}" alt="Imagem do Objeto" style="width: 300px; height: auto; cursor: pointer;" onclick="exibirEmTelaCheia(this)" />
-    {{/each}}
+<div class="container">
+  <section class="data-card">
+    <header class="data-header">
+      <h1>Detalhes do Objeto</h1>
+      <a class="btn btn-secondary" href="/home">Voltar</a>
+    </header>
+
+    {{#if objeto.imagens.length}}
+      <div class="gallery">
+        {{#each objeto.imagens}}
+          <img src="{{this.img1}}" alt="Imagem do Objeto" onclick="exibirEmTelaCheia(this)" />
+        {{/each}}
+      </div>
+    {{/if}}
+
+    <div class="data-grid">
+      <div class="row"><span class="key">Recompensa</span><span class="value recompensa-color">{{objeto.recompensa}}</span></div>
+      <div class="row"><span class="key">Crime</span><span class="value crime-color">{{objeto.crime}}</span></div>
+      <div class="row"><span class="key">Cor</span><span class="value">{{objeto.cor}}</span></div>
+      <div class="row"><span class="key">Status</span><span class="value">{{objeto.status}}</span></div>
+      <div class="row"><span class="key">Categoria</span><span class="value">{{objeto.categoria}}</span></div>
+    </div>
+
+    {{#if objeto.det_crime}}
+      <section class="data-section">
+        <h2 class="section-title">Detalhes do Crime</h2>
+        <p class="prose">{{objeto.det_crime}}</p>
+      </section>
+    {{/if}}
+
+    {{#if objeto.inf_adicionais}}
+      <section class="data-section">
+        <h2 class="section-title">Informações Adicionais</h2>
+        <p class="prose">{{objeto.inf_adicionais}}</p>
+      </section>
+    {{/if}}
+
+    {{#if detalhesAdicionais}}
+      {{#ifEquals objeto.categoria "eletronico"}}
+        <section class="data-section">
+          <h2 class="section-title">Detalhes do Eletrônico</h2>
+          <div class="data-grid">
+            {{#if detalhesAdicionais.cod_identificador}}
+              <div class="row"><span class="key">Identificador</span><span class="value">{{detalhesAdicionais.cod_identificador}}</span></div>
+            {{/if}}
+            {{#if detalhesAdicionais.marca}}
+              <div class="row"><span class="key">Marca</span><span class="value">{{detalhesAdicionais.marca}}</span></div>
+            {{/if}}
+            {{#if detalhesAdicionais.modelo}}
+              <div class="row"><span class="key">Modelo</span><span class="value">{{detalhesAdicionais.modelo}}</span></div>
+            {{/if}}
+            {{#if detalhesAdicionais.serial}}
+              <div class="row"><span class="key">Número de Série</span><span class="value">{{detalhesAdicionais.serial}}</span></div>
+            {{/if}}
+            {{#if detalhesAdicionais.tipo}}
+              <div class="row"><span class="key">Tipo</span><span class="value">{{detalhesAdicionais.tipo}}</span></div>
+            {{/if}}
+          </div>
+        </section>
+      {{/ifEquals}}
+
+      {{#ifEquals objeto.categoria "veiculo"}}
+        <section class="data-section">
+          <h2 class="section-title">Detalhes do Veículo</h2>
+          <div class="data-grid">
+            {{#if detalhesAdicionais.placa}}
+              <div class="row"><span class="key">Placa</span><span class="value">{{detalhesAdicionais.placa}}</span></div>
+            {{/if}}
+            {{#if detalhesAdicionais.chassi}}
+              <div class="row"><span class="key">Chassi</span><span class="value">{{detalhesAdicionais.chassi}}</span></div>
+            {{/if}}
+            {{#if detalhesAdicionais.marca}}
+              <div class="row"><span class="key">Marca</span><span class="value">{{detalhesAdicionais.marca}}</span></div>
+            {{/if}}
+            {{#if detalhesAdicionais.modelo}}
+              <div class="row"><span class="key">Modelo</span><span class="value">{{detalhesAdicionais.modelo}}</span></div>
+            {{/if}}
+          </div>
+        </section>
+      {{/ifEquals}}
+
+      {{#ifEquals objeto.categoria "outros"}}
+        <section class="data-section">
+          <h2 class="section-title">Detalhes Adicionais</h2>
+          {{#if detalhesAdicionais.descricao}}
+            <p class="prose">{{detalhesAdicionais.descricao}}</p>
+          {{/if}}
+        </section>
+      {{/ifEquals}}
+    {{/if}}
+  </section>
 </div>
 
-
-        <h3>Recompensa: <span class="recompensa-color">{{objeto.recompensa}}</span></h3>
-        <p><strong>Crime:</strong> <span class="crime-color">{{objeto.crime}}</span></p>
-        <p><strong>Cor:</strong> {{objeto.cor}}</p><br>
-        <p><strong>Detalhes do Crime: <br></strong> {{objeto.det_crime}}</p> <br>
-        <p><strong>Informações Adicionais: <br></strong> {{objeto.inf_adicionais}}</p><br>
-        <p><strong>Status:</strong> {{objeto.status}}</p>
-        <p><strong>Categoria:</strong> {{objeto.categoria}}</p>
-
-        {{#if detalhesAdicionais}}
-            {{#ifEquals objeto.categoria "eletronico"}}
-                <h3>Detalhes do Eletrônico</h3>
-                {{#if detalhesAdicionais.marca}}
-                    <p><strong>Identificador:</strong> {{detalhesAdicionais.cod_identificador}}</p>
-                {{/if}}
-                {{#if detalhesAdicionais.marca}}
-                    <p><strong>Marca:</strong> {{detalhesAdicionais.marca}}</p>
-                {{/if}}
-                {{#if detalhesAdicionais.modelo}}
-                    <p><strong>Modelo:</strong> {{detalhesAdicionais.modelo}}</p>
-                {{/if}}
-                {{#if detalhesAdicionais.serial}}
-                    <p><strong>Número de Série:</strong> {{detalhesAdicionais.serial}}</p>
-                {{/if}}
-                {{#if detalhesAdicionais.tipo}}
-                    <p><strong>Tipo:</strong> {{detalhesAdicionais.tipo}}</p>
-                {{/if}}
-            {{/ifEquals}}
-
-            {{#ifEquals objeto.categoria "veiculo"}}
-                <h3>Detalhes do Veículo</h3>
-                {{#if detalhesAdicionais.placa}}
-                    <p><strong>Placa:</strong> {{detalhesAdicionais.placa}}</p>
-                {{/if}}
-                {{#if detalhesAdicionais.chassi}}
-                    <p><strong>Chassi:</strong> {{detalhesAdicionais.chassi}}</p>
-                {{/if}}
-                {{#if detalhesAdicionais.marca}}
-                    <p><strong>Marca:</strong> {{detalhesAdicionais.marca}}</p>
-                {{/if}}
-                {{#if detalhesAdicionais.modelo}}
-                    <p><strong>Modelo:</strong> {{detalhesAdicionais.modelo}}</p>
-                {{/if}}
-            {{/ifEquals}}
-
-            {{#ifEquals objeto.categoria "outros"}}
-                <h3>Detalhes Adicionais</h3>
-                <p><strong>Descrição:</strong> {{detalhesAdicionais.descricao}}</p>
-            {{/ifEquals}}
-        {{/if}}
-
-        <br>
-        <a href="/home">Voltar para a home</a>
-    </div>
-</body>
-</html>
-
-
-<script>
-
-
-</script>

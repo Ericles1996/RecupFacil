@@ -43,6 +43,15 @@ Handlebars.registerHelper('getFileName', function (path) {
   return path.split('/').pop();
 })
 
+// Serializa valores como JSON seguro para uso em scripts embutidos
+Handlebars.registerHelper('json', function(context) {
+  try {
+    return JSON.stringify(context);
+  } catch (e) {
+    return 'null';
+  }
+});
+
 
 
 
@@ -102,6 +111,20 @@ app.use(async (req, res, next) => {
   next();
 });
 
+
+app.use((req, res, next) => {
+  res.locals.nivel = req.session ? req.session.nivel : undefined;
+  next();
+});
+
+
+// garante que o nome do usuario esteja disponível nas views logo após o login
+app.use((req, res, next) => {
+  if (req.session && req.session.nomeUsuario) {
+    res.locals.nomeUsuario = req.session.nomeUsuario;
+  }
+  next();
+});
 
 // Arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));

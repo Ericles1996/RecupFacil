@@ -42,7 +42,7 @@ const path = require('path'); // Importando o módulo path
 
 const { cadastrarUsuario, listarUsuarios, excluirUsuario, listarObjetosUsuario, 
   excluirObjeto, editarNivelPermissao, cadastrarObjeto, loginController, 
-  logoutController, editarObjeto, listarObjetosTodos, viewObjeto, buscarObjetosPorCategoria,
+  logoutController, editarObjeto, getDashboard, listarObjetosTodos, viewObjeto, buscarObjetosPorCategoria,
   buscarObjetosPorStatus, CarregarDadosUsuario, buscarUsuario, carregarDadosUsuarioParaEdicao, 
   atualizarUsuario, gerenciarObjetos, buscarObjetos, excluirImagem, listarAuditorias,  
   filtrarAuditorias} = require('../controllers/recupcontroller'); 
@@ -55,6 +55,7 @@ router.post('/login', loginController);
 router.get('/logout', logoutController)
 router.post('/excluirObjeto/:id', excluirObjeto);
 router.get('/home', listarObjetosTodos);
+router.get('/dashboard', getDashboard);
 router.get('/viewObjetos/:id', viewObjeto);
 router.get('/meusdados', CarregarDadosUsuario);
 router.get('/editarusuario/:id', carregarDadosUsuarioParaEdicao);

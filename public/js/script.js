@@ -1,11 +1,54 @@
 
-/*nav bar main*/
+/* Navegação responsiva / dropdowns */
 function toggleMenu() {
     const menu = document.querySelector('.menu');
     menu.classList.toggle('show');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Hide Admin menu for non-admin users
+    try {
+        var nivel = (document.body && document.body.dataset) ? document.body.dataset.nivel : undefined;
+        if (nivel !== '2') {
+            var adminBtn = document.getElementById('menu-admin');
+            if (adminBtn) {
+                var adminLi = adminBtn.closest('.menu-dropdown');
+                if (adminLi) adminLi.style.display = 'none';
+            }
+        }
+    } catch (e) {}
+    // Botão hamburguer para o novo layout
+    const menuToggle = document.querySelector('.menu-toggle');
+    const primaryMenu = document.getElementById('primary-menu');
+    if (menuToggle && primaryMenu) {
+        menuToggle.addEventListener('click', () => {
+            const open = primaryMenu.classList.toggle('open');
+            menuToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+    }
+
+    // Dropdowns (Admin e Usuário)
+    function setupDropdowns() {
+        document.querySelectorAll('.menu-dropdown .dropdown-toggle').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const li = btn.closest('.menu-dropdown');
+                const isOpen = li.classList.contains('open');
+                document.querySelectorAll('.menu-dropdown.open').forEach(el => el.classList.remove('open'));
+                li.classList.toggle('open', !isOpen);
+                btn.setAttribute('aria-expanded', !isOpen ? 'true' : 'false');
+            });
+        });
+
+        // Fecha dropdown ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.menu-dropdown')) {
+                document.querySelectorAll('.menu-dropdown.open').forEach(el => el.classList.remove('open'));
+            }
+        });
+    }
+    setupDropdowns();
+
     const menuLinks = document.querySelectorAll('.menu a');
     const dicasMenuItem = document.getElementById('menu-dicas');
     const currentURL = window.location.pathname;

@@ -1,7 +1,9 @@
-
+﻿
+    <div class="center-page">
     <div class="login-container">
         <h2>Login</h2>
-        <form action="/login" method="POST">
+        <div id="login-alert" class="alert alert-error" role="alert" style="display:none"></div>
+        <form id="login-form" action="/login" method="POST" novalidate>
             <div class="form-group">
                 <label for="username">Email</label>
                 <input type="text" id="username" name="username" required>
@@ -16,8 +18,55 @@
 
             </div>
         </form>
-        <p>Ainda não tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>.</p>
+        <p>Ainda nÃ£o tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>.</p>
+    </div>
     </div>
     
+    <script>
+    (function(){
+      const form = document.getElementById('login-form');
+      const alertBox = document.getElementById('login-alert');
+      if(!form) return;
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        alertBox.style.display = 'none';
+        const formData = new FormData(form);
+        const payload = new URLSearchParams();
+        for (const [k,v] of formData.entries()) payload.append(k, v);
+        try {
+          const resp = await fetch(form.action, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: payload.toString(),
+            credentials: 'same-origin'
+          });
+          if (resp.status === 401) {
+            let data = {};
+            try { data = await resp.json(); } catch(_) {}
+            const msg = (data && data.message) ? data.message : 'E-mail ou senha invÃ¡lidos.';
+            alertBox.textContent = msg;
+            alertBox.style.display = 'block';
+            return;
+          }
+          if (resp.ok) {
+            if (resp.redirected && resp.url) {
+              window.location.href = resp.url;
+            } else {
+              window.location.href = '/home';
+            }
+            return;
+          }
+          alertBox.textContent = 'Erro no servidor. Tente novamente.';
+          alertBox.style.display = 'block';
+        } catch(err) {
+          alertBox.textContent = 'Falha de rede. Verifique sua conexÃ£o.';
+          alertBox.style.display = 'block';
+        }
+      });
+    })();
+    </script>
     <script src="js/script.js"></script> 
+
+
+
 
