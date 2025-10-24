@@ -179,11 +179,13 @@ const getDashboard = async (req, res) => {
                 cor: o.cor,
                 status: o.status,
                 categoria: o.categoria,
-                usuario: o.usuario ? o.usuario.nome : '—',
+                usuario: o.usuario ? o.usuario.nome : '-',
                 cidade: endereco ? endereco.cidade : null,
                 bairro: endereco ? endereco.bairro : null,
                 rua: endereco ? endereco.rua : null,
-                img: (o.imagens && o.imagens[0]) ? o.imagens[0].img1 : null
+                img: (o.imagens && o.imagens[0] && o.imagens[0].img1)
+                    ? ("/uploads/" + (typeof o.imagens[0].img1 === 'string' ? o.imagens[0].img1.replace(/\\/g, '/').split('/').pop() : ''))
+                    : null
             };
         });
 
@@ -564,13 +566,13 @@ const editarObjeto = async (req, res) => {
 
         // Verifica se hÃ¡ arquivos de imagem recebidos
         if (req.files && req.files.length > 0) {
-            const imagePaths = req.files.map(file => `/img/uploads/${file.filename}`);
+            const filenames = req.files.map(file => file.filename);
 
-            // Adiciona as novas imagens ao banco de dados
-            for (const imagePath of imagePaths) {
+            // store only the filename in DB
+            for (const fname of filenames) {
                 await ImagensObjeto.create({
                     id_objeto: objeto.id,
-                    img1: imagePath
+                    img1: fname
                 });
             }
             console.log('Novas imagens adicionadas com sucesso.');
