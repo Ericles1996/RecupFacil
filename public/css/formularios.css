@@ -66,3 +66,19 @@ button[type="submit"]:hover,button[type="salvar"]:hover,.btn-primary:hover{backg
 /* Centralização específica da página de login */
 .center-page{min-height:calc(100vh - 48px);display:grid;place-items:center}
 .center-page .login-container{margin:0}
+.center-page a {
+  color: white;
+
+}
+
+.login-container a {
+  color: white;
+
+}
+
+
+/* Controles de visibilidade de senha */
+.password-wrapper{position:relative}
+.password-wrapper input{padding-right:86px}
+.toggle-visibility{position:absolute;right:12px;top:50%;transform:translateY(-50%);height:36px;padding:0 12px;border-radius:10px;border:1px solid rgba(255,255,255,.25);background:transparent;color:#e5e7eb;cursor:pointer;z-index:2}
+.toggle-visibility:hover{background:rgba(255,255,255,.08)}

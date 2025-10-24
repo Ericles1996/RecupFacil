@@ -8,7 +8,7 @@
     {{#if objeto.imagens.length}}
       <div class="gallery">
         {{#each objeto.imagens}}
-          <img src="{{this.img1}}" alt="Imagem do Objeto" onclick="exibirEmTelaCheia(this)" />
+          <img src="/uploads/{{getFileName this.img1}}" alt="Imagem do Objeto" onclick="exibirEmTelaCheia(this)" />
         {{/each}}
       </div>
     {{/if}}
@@ -90,4 +90,3 @@
     {{/if}}
   </section>
 </div>
-

@@ -27,7 +27,7 @@
               <div class="imagem-grid">
                 {{#each this.imagens}}
                   <div class="imagem-thumb">
-                    <img src="{{this.img1}}" alt="Imagem do Objeto" />
+                    <img src="/uploads/{{getFileName this.img1}}" alt="Imagem do Objeto" />
                     <form class="img-delete" action="/excluirImagem/{{this.id}}?_method=DELETE" method="POST" onsubmit="return confirm('Excluir esta imagem?');">
                       <button type="submit" class="btn btn-icon btn-img-delete" title="Excluir imagem">
                         <i class="fa fa-trash"></i>

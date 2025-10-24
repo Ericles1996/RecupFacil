@@ -39,8 +39,10 @@ Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
   return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
 });
 
-Handlebars.registerHelper('getFileName', function (path) {
-  return path.split('/').pop();
+Handlebars.registerHelper('getFileName', function (p) {
+  if (!p || typeof p !== 'string') return '';
+  const normalized = p.replace(/\\/g, '/');
+  return normalized.split('/').pop();
 })
 
 // Serializa valores como JSON seguro para uso em scripts embutidos

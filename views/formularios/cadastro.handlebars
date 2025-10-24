@@ -1,6 +1,6 @@
-<br>
+﻿<br>
     <div class="login-container">
-        <h2>Cadastro Usu&aacute;rio</h2>
+        <h2>Cadastro de Usuário</h2>
         <form action="/cadastro" method="POST">
             <div class="form-group">
                 <label for="username">Nome Completo: <span style="color: red;">*</span></label>
@@ -16,17 +16,17 @@
             </div>
             <div class="form-group">
                 <label for="password">Senha:</label>
-                <div style="position: relative;">
+                <div class="password-wrapper">
                     <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
-                    <button type="button" id="togglePassword" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%);">Mostrar</button>
+                    <button type="button" id="togglePassword" class="toggle-visibility">Mostrar</button>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="confirm_password">Confirme a Senha:</label>
-                <div style="position: relative;">
+                <div class="password-wrapper">
                     <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirme sua senha" required>
-                    <button type="button" id="toggleConfirmPassword" style="position: absolute; right: 30px; top: 50%; transform: translateY(-50%);">Mostrar</button>
+                    <button type="button" id="toggleConfirmPassword" class="toggle-visibility">Mostrar</button>
                 </div>
             </div>
 
@@ -104,57 +104,43 @@
             </div>
 
         </form>
-        <p>J&aacute; tem uma conta? <a href="/login">Fa&ccedil;a login</a></p>
+        <p>Já tem uma conta? <a href="/login">Faça login</a></p>
     </div>
 
     <script>
 (function(){
   var email = document.getElementById('email');
   var emailError = document.getElementById('emailError');
-  if(!email) return;
 
-  function validate(){
-    if(email.validity.valid){
-      email.classList.remove('is-invalid');
-      email.classList.add('is-valid');
-      emailError.style.display = 'none';
-    } else {
-      email.classList.remove('is-valid');
-      email.classList.add('is-invalid');
-      emailError.style.display = 'block';
+  if(email){
+    function validate(){
+      if(email.validity.valid){
+        email.classList.remove('is-invalid');
+        email.classList.add('is-valid');
+        if(emailError) emailError.style.display = 'none';
+      } else {
+        email.classList.remove('is-valid');
+        email.classList.add('is-invalid');
+        if(emailError) emailError.style.display = 'block';
+      }
+    }
+
+    email.addEventListener('input', validate);
+    email.addEventListener('blur', validate);
+
+    var form = email.closest('form');
+    if(form){
+      form.addEventListener('submit', function(e){
+        if(!email.checkValidity()){
+          validate();
+          e.preventDefault();
+          email.focus();
+        }
+      });
     }
   }
 
-  email.addEventListener('input', validate);
-  email.addEventListener('blur', validate);
-
-  var form = email.closest('form');
-  if(form){
-    form.addEventListener('submit', function(e){
-      if(!email.checkValidity()){
-        validate();
-        e.preventDefault();
-        email.focus();
-      }
-    });
-  }
-
-  // Toggle visibilidade das senhas
-  var pass = document.getElementById('password');
-  var passBtn = document.getElementById('togglePassword');
-  var pass2 = document.getElementById('confirm_password');
-  var pass2Btn = document.getElementById('toggleConfirmPassword');
-  function toggle(btn, input){
-    if(!btn || !input) return;
-    btn.addEventListener('click', function(){
-      var isPwd = input.type === 'password';
-      input.type = isPwd ? 'text' : 'password';
-      btn.textContent = isPwd ? 'Ocultar' : 'Mostrar';
-    });
-  }
-  toggle(passBtn, pass);
-  toggle(pass2Btn, pass2);
-})();
-</script>
+  })();
+    </script>
 
 

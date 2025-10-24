@@ -14,7 +14,7 @@
         <div class="imagem-container">
           {{#each this.imagens}}
             {{#if @first}}
-              <img src="{{this.img1}}" alt="Imagem do Objeto" />
+              <img src="/uploads/{{getFileName this.img1}}" alt="Imagem do Objeto" />
             {{/if}}
           {{/each}}
         </div>
