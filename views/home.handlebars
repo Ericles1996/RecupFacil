@@ -30,7 +30,7 @@
         <div class="imagem-container">
           {{#each this.imagens}}
             {{#if @first}}
-              <img src="/uploads/{{getFileName this.img1}}" alt="Imagem do Objeto" style="cursor: pointer;" onclick="exibirEmTelaCheia(this)" />
+              <img src="{{imageSrc this.img1}}" alt="Imagem do Objeto" style="cursor: pointer;" onclick="exibirEmTelaCheia(this)" />
             {{/if}}
           {{/each}}
         </div>

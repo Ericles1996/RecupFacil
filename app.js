@@ -46,6 +46,18 @@ Handlebars.registerHelper('getFileName', function (p) {
   return normalized.split('/').pop();
 })
 
+// Retorna a URL correta da imagem (Cloudinary ou local)
+Handlebars.registerHelper('imageSrc', function (p) {
+  try {
+    if (!p) return '';
+    if (typeof p !== 'string') return '';
+    if (/^https?:\/\//i.test(p)) return p; // URL absoluta (Cloudinary)
+    const normalized = p.replace(/\\/g, '/');
+    const base = normalized.split('/').pop();
+    return '/uploads/' + base;
+  } catch (e) { return ''; }
+});
+
 // Serializa valores como JSON seguro para uso em scripts embutidos
 Handlebars.registerHelper('json', function(context) {
   try {

@@ -265,17 +265,8 @@ router.post('/usuario/:id', async (req, res) => {
 
 const multer = require('multer');
 
-// Configura o armazenamento e o nome do arquivo
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../public/img/uploads'));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-
+// Armazenamento em memória; os buffers serão enviados ao Cloudinary
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Rota para postar objeto com upload de imagens

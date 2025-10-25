@@ -5,6 +5,7 @@ const Telefone = require('../models/Telefone');
 const Endereco = require('../models/Endereco');
 const Auditoria = require('../models/Auditoria');
 const path = require('path');
+const cloudinary = require('../config/cloudinary');
 const { Op } = require('sequelize');
 
 const { Objeto, Eletronico, Veiculo,  ImagensObjeto} = require('../models'); 
@@ -184,7 +185,9 @@ const getDashboard = async (req, res) => {
                 bairro: endereco ? endereco.bairro : null,
                 rua: endereco ? endereco.rua : null,
                 img: (o.imagens && o.imagens[0] && o.imagens[0].img1)
-                    ? ("/uploads/" + (typeof o.imagens[0].img1 === 'string' ? o.imagens[0].img1.replace(/\\/g, '/').split('/').pop() : ''))
+                    ? ((/^https?:\/\//.test(o.imagens[0].img1))
+                        ? o.imagens[0].img1
+                        : ("/uploads/" + (typeof o.imagens[0].img1 === 'string' ? o.imagens[0].img1.replace(/\\/g, '/').split('/').pop() : '')))
                     : null
             };
         });
@@ -387,6 +390,31 @@ const editarNivelPermissao = async (req, res) => {
 //============================================================
 
 
+// helper para subir buffer ao Cloudinary
+function uploadBufferToCloudinary(buffer, folder = 'recupfacil') {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream({ folder }, (err, result) => {
+            if (err) return reject(err);
+            return resolve(result);
+        });
+        stream.end(buffer);
+    });
+}
+
+function extractCloudinaryPublicId(url) {
+    try {
+        const u = new URL(url);
+        if (!/\.cloudinary\.com$/i.test(u.hostname)) return null;
+        const parts = u.pathname.split('/').filter(Boolean);
+        const idx = parts.indexOf('upload');
+        if (idx === -1) return null;
+        let rest = parts.slice(idx + 1).join('/');
+        rest = rest.replace(/^v\d+\//, '');
+        const dot = rest.lastIndexOf('.');
+        return dot > -1 ? rest.slice(0, dot) : rest;
+    } catch { return null; }
+}
+
 const cadastrarObjeto = async (req, res) => {
     try {
         const {
@@ -450,13 +478,11 @@ const cadastrarObjeto = async (req, res) => {
 
         // Verifique se imagens foram enviadas
         if (req.files && req.files.length > 0) {
-            const filenames = req.files.map(file => file.filename);
-
-            // Armazena cada imagem no banco de dados (somente nome do arquivo)
-            for (const fname of filenames) {
+            for (const file of req.files) {
+                const uploaded = await uploadBufferToCloudinary(file.buffer, 'recupfacil');
                 await ImagensObjeto.create({
                     id_objeto: novoObjeto.id,
-                    img1: fname
+                    img1: uploaded.secure_url
                 });
             }
         }
@@ -596,10 +622,14 @@ const editarObjeto = async (req, res) => {
 
         // Verifica se hÃ¡ arquivos de imagem recebidos
         if (req.files && req.files.length > 0) {
-            const filenames = req.files.map(file => file.filename);
+            const uploadedUrls = [];
+            for (const file of req.files) {
+                const uploaded = await uploadBufferToCloudinary(file.buffer, 'recupfacil');
+                uploadedUrls.push(uploaded.secure_url);
+            }
 
             // store only the filename in DB
-            for (const fname of filenames) {
+            for (const fname of uploadedUrls) {
                 await ImagensObjeto.create({
                     id_objeto: objeto.id,
                     img1: fname
@@ -695,6 +725,14 @@ const excluirImagem = async (req, res) => {
     const { id } = req.params;
 
     try {
+        const img = await ImagensObjeto.findByPk(id);
+        if (img && img.img1 && /^https?:\/\//i.test(img.img1)) {
+            const publicId = extractCloudinaryPublicId(img.img1);
+            if (publicId) {
+                try { await cloudinary.uploader.destroy(publicId); } catch (e) { /* ignore */ }
+            }
+        }
+
         const resultado = await ImagensObjeto.destroy({ where: { id } });
 
         if (resultado) {
