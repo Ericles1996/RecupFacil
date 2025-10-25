@@ -18,6 +18,9 @@
             {{/if}}
           {{/each}}
         </div>
+        {{#if this.nomeobjeto}}
+          <h3 class="objeto-nome"><strong>Nome: </strong>{{this.nomeobjeto}}</h3>
+        {{/if}}
         <h3 class="objeto-nome"><strong>Recompensa: </strong><span class="recompensa-color">{{this.recompensa}}</span></h3>
         {{#if this.crime}}
           <p class="objeto-descricao"><strong>Crime:</strong> <span class="crime-color">{{this.crime}}</span></p>

@@ -1,5 +1,5 @@
-﻿
-/* NavegaÃ§Ã£o responsiva / dropdowns */
+
+/* Navegação responsiva / dropdowns */
 function toggleMenu() {
     const menu = document.querySelector('.menu');
     menu.classList.toggle('show');
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     } catch (e) {}
-    // BotÃ£o hamburguer para o novo layout
+    // Botão hamburguer para o novo layout
     const menuToggle = document.querySelector('.menu-toggle');
     const primaryMenu = document.getElementById('primary-menu');
     if (menuToggle && primaryMenu) {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Dropdowns (Admin e UsuÃ¡rio)
+    // Dropdowns (Admin e Usuário)
     function setupDropdowns() {
         document.querySelectorAll('.menu-dropdown .dropdown-toggle').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dicasMenuItem = document.getElementById('menu-dicas');
     const currentURL = window.location.pathname;
     
-    // FunÃ§Ã£o para marcar o link atual com base na URL
+    // Função para marcar o link atual com base na URL
     function updateSelectedMenu() {
         const currentPath = window.location.pathname;
         menuLinks.forEach(link => {
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
     }
 
-    // Restaura a seleÃ§Ã£o ao carregar a pÃ¡gina
+    // Restaura a seleção ao carregar a página
     updateSelectedMenu();
     
     // Adiciona o evento de clique aos links
@@ -98,17 +98,28 @@ function previewImages(event, index) {
     const previewContainer = document.getElementById(`image-preview${index}`);
     previewContainer.innerHTML = '';
 
+    const MAX_MB = 5;
+    const MAX_BYTES = MAX_MB * 1024 * 1024;
+
     for (let i = 0; i < files.length; i++) {
-        if (files[i]) { 
-            const img = document.createElement('img');
-            img.src = URL.createObjectURL(files[i]);
-            previewContainer.appendChild(img);
+        const f = files[i];
+        if (!f) continue;
+        if (!f.type || !f.type.startsWith('image/')) {
+            alert('Apenas arquivos de imagem s�o permitidos.');
+            continue;
         }
+        if (f.size > MAX_BYTES) {
+            alert(`Imagem muito grande: limite de ${MAX_MB} MB.`);
+            continue;
+        }
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        previewContainer.appendChild(img);
     }
 }
 
 
-/*botÃµes de adicionar e excluir imagens*/
+/*botões de adicionar e excluir imagens*/
 
 let imageCount = 1; 
 const maxImages = 4;
@@ -117,7 +128,7 @@ function addImageField() {
     if (imageCount < maxImages) { 
         imageCount++; 
         
-        // CriaÃ§Ã£o de uma nova div para o campo da imagem
+        // Criação de uma nova div para o campo da imagem
         const newImageField = document.createElement('div');
         newImageField.classList.add('form-group', 'image-container');
         newImageField.innerHTML = `
@@ -126,10 +137,10 @@ function addImageField() {
             <div class="image-preview" id="image-preview${imageCount}"></div>
         `;
         
-        // Adiciona o novo campo ao contÃªiner de imagens
+        // Adiciona o novo campo ao contêiner de imagens
         document.getElementById('image-fields').appendChild(newImageField);
     } else {
-        alert('VocÃª jÃ¡ adicionou o nÃºmero mÃ¡ximo de imagens (4).'); 
+        alert('Você já adicionou o número máximo de imagens (4).'); 
     }
 }
 
@@ -139,7 +150,7 @@ function removeImageField() {
         lastImageField.remove(); 
         imageCount--; 
     } else {
-        alert('NÃ£o hÃ¡ mais imagens para excluir.'); 
+        alert('Não há mais imagens para excluir.'); 
     }
 }
 
@@ -159,12 +170,12 @@ function formatCurrency(input) {
 document.addEventListener("DOMContentLoaded", function () {
     const rewardInput = document.getElementById("reward");
 
-    // Formata o valor existente ao carregar a pÃ¡gina
+    // Formata o valor existente ao carregar a página
     if (rewardInput.value) {
         rewardInput.value = formatCurrencyValue(rewardInput.value);
     }
 
-    // Formata o valor enquanto o usuÃ¡rio digita
+    // Formata o valor enquanto o usuário digita
     rewardInput.addEventListener("input", function () {
         this.value = formatCurrencyValue(this.value);
     });
@@ -182,9 +193,62 @@ function formatCurrencyValue(value) {
     return `R$ ${value}`;
 }
 
+// ------- Helpers de valida��o/formatos simples -------
+function onlyDigits(el) {
+    if (!el) return;
+    el.value = el.value.replace(/\D/g, '');
+}
+
+function onlyAlphaNumUpper(el) {
+    if (!el) return;
+    el.value = el.value.replace(/[^0-9a-z]/gi, '').toUpperCase();
+}
+
+function formatPlate(el) {
+    if (!el) return;
+    let v = (el.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (v.length > 8) v = v.slice(0, 8);
+    el.value = v;
+}
+
+function validatePostForm() {
+    try {
+        const categoryEl = document.getElementById('category');
+        const category = categoryEl ? categoryEl.value : '';
+        if (category === 'veiculo') {
+            const plateEl = document.getElementById('plate');
+            const chassisEl = document.getElementById('chassis');
+            const plate = plateEl ? plateEl.value.trim() : '';
+            const chassis = chassisEl ? chassisEl.value.trim() : '';
+            if (!plate && !chassis) {
+                alert('Para ve�culos, informe a placa ou o chassi.');
+                return false;
+            }
+            if (plate && (plate.length < 7 || plate.length > 8)) {
+                alert('Placa inv�lida. Use 7 a 8 caracteres (ex: ABC1D23).');
+                return false;
+            }
+            if (chassis && chassis.length !== 17) {
+                alert('Chassi deve ter 17 caracteres.');
+                return false;
+            }
+        } else if (category === 'eletronico') {
+            const identifierEl = document.getElementById('identifier');
+            const identifier = identifierEl ? identifierEl.value.trim() : '';
+            if (!identifier) {
+                alert('Para eletr�nicos, informe um c�digo identificador (ex.: IMEI ou n� de s�rie).');
+                return false;
+            }
+        }
+        return true;
+    } catch (e) {
+        return true;
+    }
+}
+
 //-------------------------------------------------------------
 
-// campos para confirmaÃ§Ã£o de senha
+// campos para confirmação de senha
 
 document.addEventListener('DOMContentLoaded', () => {
     const togglePassword = document.getElementById('togglePassword');
@@ -196,11 +260,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function toggleVisibility(button, field) {
         const isPassword = field.getAttribute('type') === 'password';
         field.setAttribute('type', isPassword ? 'text' : 'password');
-        button.textContent = isPassword ? 'Ocultar' : 'Mostrar'; // Alterna o Ã­cone
+        button.textContent = isPassword ? 'Ocultar' : 'Mostrar'; // Alterna o ícone
     }
 
-    if (togglePassword && passwordField) { togglePassword.addEventListener('click', () => toggleVisibility(togglePassword, passwordField)); }
-    if (toggleConfirmPassword && confirmPasswordField) { toggleConfirmPassword.addEventListener('click', () => toggleVisibility(toggleConfirmPassword, confirmPasswordField)); }
+    if (togglePassword && passwordField) { togglePassword.addEventListener('click', () => toggleVisibility(event, togglePassword, passwordField)); }
+    if (toggleConfirmPassword && confirmPasswordField) { toggleConfirmPassword.addEventListener('click', () => toggleVisibility(event, toggleConfirmPassword, confirmPasswordField)); }
 });
 
 
@@ -239,19 +303,19 @@ function exibirEmTelaCheia(img) {
 }
 
 //=======================================================================
-//      FunÃ§Ã£o para ativar a guia principal segundo suas subguias                
+//      Função para ativar a guia principal segundo suas subguias                
 //=======================================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-    const currentPath = window.location.pathname; // ObtÃ©m o caminho atual da URL
+    const currentPath = window.location.pathname; // Obtém o caminho atual da URL
     console.log('Caminho atual:', currentPath); // Log do caminho atual
 
-    // Subguias associadas Ã s guias principais
+    // Subguias associadas às guias principais
     const paths = {
         ajuda: ["/", "/artigos", "/dicasregionais", "/comodenunciar", "/links"],
         admin: ["/gerenciarusuario", "/gerenciarobjeto", "/auditorias"],
         home: ["/filtro"], 
-        meusobjetos: ["/meusobjetos", "/filtro-status"] // Adiciona a rota do filtro de status Ã  guia Meus Objetos
+        meusobjetos: ["/meusobjetos", "/filtro-status"] // Adiciona a rota do filtro de status à guia Meus Objetos
     };
 
     // Verifica e ativa as guias principais e suas subguias
@@ -285,3 +349,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
+
+
+// Suporte ao bot�o de toggle no login (id diferente)
+document.addEventListener('DOMContentLoaded', function(){
+  var altBtn = document.getElementById('togglePasswordLogin');
+  var pwd = document.getElementById('password');
+  if(altBtn && pwd){ altBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); var isPwd = pwd.type === 'password'; pwd.type = isPwd ? 'text' : 'password'; var icon = altBtn.querySelector('#toggleIcon'); if(icon){ icon.textContent = isPwd ? 'Ocultar' : 'Mostrar'; } altBtn.setAttribute('aria-label', isPwd ? 'Ocultar senha' : 'Mostrar senha'); altBtn.setAttribute('aria-pressed', (!isPwd).toString()); }); }
+});

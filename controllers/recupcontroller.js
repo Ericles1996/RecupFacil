@@ -395,6 +395,7 @@ const cadastrarObjeto = async (req, res) => {
             color,
             crimeDetails,
             additionalInfo,
+            objectName,
             status,
             category,
             modelvehicle,
@@ -421,13 +422,27 @@ const cadastrarObjeto = async (req, res) => {
         console.log("ID do usuÃ¡rio:", userId);
         console.log("Dados enviados:", req.body);
 
+        // Validação: nome do objeto é obrigatório
+        if (!objectName || !objectName.trim()) {
+            return res.send(`
+                <script>
+                    alert('O nome do objeto é obrigatório.');
+                    window.history.back();
+                </script>
+            `);
+        }
+
+        // Informações adicionais agora são livres, sem prefixo de nome
+        const composedAdditional = additionalInfo && additionalInfo.trim() ? additionalInfo.trim() : null;
+
         // Cria o objeto na tabela OBJETO, incluindo o id_usuario
         const novoObjeto = await Objeto.create({
             recompensa: reward,
             crime: crimeType,
             cor: color,
             det_crime: crimeDetails,
-            inf_adicionais: additionalInfo,
+            nomeobjeto: objectName.trim(),
+            inf_adicionais: composedAdditional,
             status: status,
             categoria: category,
             id_usuario: userId 
@@ -539,10 +554,24 @@ const editarObjeto = async (req, res) => {
         const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' Ã© a chave estrangeira
         
         const {
-            reward, crimeType, color, crimeDetails, additionalInfo, status,
+            reward, crimeType, color, crimeDetails, additionalInfo, objectName, status,
             category, identifier, modelEletronico, modelVehicle, brandVehicle,
             plate, chassis, vehicleType, brandEletronico, objectType
         } = req.body;
+
+        // Informações adicionais agora são livres, sem prefixo de nome
+        // Validação: nome do objeto é obrigatório
+        if (!objectName || !objectName.trim()) {
+            return res.send(`
+                <script>
+                    alert('O nome do objeto é obrigatório.');
+                    window.history.back();
+                </script>
+            `);
+        }
+
+        // Informações adicionais agora são livres, sem prefixo de nome
+        const composedAdditional = additionalInfo && additionalInfo.trim() ? additionalInfo.trim() : null;
 
         // Atualizar dados do objeto principal
         await objeto.update({
@@ -550,7 +579,8 @@ const editarObjeto = async (req, res) => {
             crime: crimeType,
             cor: color,
             det_crime: crimeDetails,
-            inf_adicionais: additionalInfo,
+            nomeobjeto: objectName.trim(),
+            inf_adicionais: composedAdditional,
             status: status,
             categoria: category || objeto.categoria
         });
@@ -1296,6 +1326,7 @@ const buscarObjetos = async (req, res) => {
         const objetos = await Objeto.findAll({
             where: {
                 [Op.or]: [
+                    { nomeobjeto: { [Op.like]: `%${termo}%` } },
                     { crime: { [Op.like]: `%${termo}%` } },
                     { cor: { [Op.like]: `%${termo}%` } },
                     { det_crime: { [Op.like]: `%${termo}%` } },

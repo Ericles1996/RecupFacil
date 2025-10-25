@@ -1,4 +1,4 @@
-Ôªø
+
     <div class="center-page">
     <div class="login-container">
         <h2>Login</h2>
@@ -10,7 +10,19 @@
             </div>
             <div class="form-group">
                 <label for="password">Senha</label>
-                <input type="password" id="password" name="password" required>
+                <div class="input-with-toggle" style="position:relative;">
+                  <input type="password" id="password" name="password" required style="padding-right:44px;">
+                  <button
+                    type="button"
+                    id="togglePasswordLogin"
+                    aria-label="Mostrar senha"
+                    aria-pressed="false"
+                    style="position:absolute; right:8px; top:50%; transform:translateY(-50%); height:30px; min-width:30px; display:inline-flex; align-items:center; justify-content:center; background:transparent; border:1px solid rgba(255,255,255,.25); border-radius:6px; color:inherit; cursor:pointer;"
+                    title="Mostrar/Ocultar senha"
+                  >
+                    <span id="toggleIcon" aria-hidden="true">Mostrar</span>
+                  </button>
+                </div>
             </div>
             <div class="form-actions"> 
                 <button type="submit">Entrar</button>
@@ -18,7 +30,7 @@
 
             </div>
         </form>
-        <p>Ainda n√£o tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>.</p>
+        <p>Ainda n„o tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>.</p>
     </div>
     </div>
     
@@ -43,7 +55,7 @@
           if (resp.status === 401) {
             let data = {};
             try { data = await resp.json(); } catch(_) {}
-            const msg = (data && data.message) ? data.message : 'E-mail ou senha inv√°lidos.';
+            const msg = (data && data.message) ? data.message : 'E-mail ou senha inv·lidos.';
             alertBox.textContent = msg;
             alertBox.style.display = 'block';
             return;
@@ -59,14 +71,27 @@
           alertBox.textContent = 'Erro no servidor. Tente novamente.';
           alertBox.style.display = 'block';
         } catch(err) {
-          alertBox.textContent = 'Falha de rede. Verifique sua conex√£o.';
+          alertBox.textContent = 'Falha de rede. Verifique sua conex„o.';
           alertBox.style.display = 'block';
         }
       });
     })();
+    (function(){
+      const input = document.getElementById('password');
+      const btn = document.getElementById('togglePassword');
+      const icon = document.getElementById('toggleIcon');
+      if (!input || !btn) return;
+      btn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        const isText = input.type === 'text';
+        input.type = isText ? 'password' : 'text';
+        btn.setAttribute('aria-label', isText ? 'Mostrar senha' : 'Ocultar senha');
+        btn.setAttribute('aria-pressed', (!isText).toString());
+        if (icon) icon.textContent = isText ? '???' : '??';
+      });
+    })();
     </script>
     <script src="js/script.js"></script> 
-
-
 
 

@@ -14,6 +14,9 @@
     {{/if}}
 
     <div class="data-grid">
+      {{#if objeto.nomeobjeto}}
+        <div class="row"><span class="key">Nome</span><span class="value">{{objeto.nomeobjeto}}</span></div>
+      {{/if}}
       <div class="row"><span class="key">Recompensa</span><span class="value recompensa-color">{{objeto.recompensa}}</span></div>
       <div class="row"><span class="key">Crime</span><span class="value crime-color">{{objeto.crime}}</span></div>
       <div class="row"><span class="key">Cor</span><span class="value">{{objeto.cor}}</span></div>
@@ -90,3 +93,4 @@
     {{/if}}
   </section>
 </div>
+

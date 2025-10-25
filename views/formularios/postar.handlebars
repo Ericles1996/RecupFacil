@@ -1,6 +1,10 @@
 <div class="login-container">
     <h2>Postagem de Objeto</h2>
-    <form action="/postar" method="POST" enctype="multipart/form-data">
+    <form id="postarForm" action="/postar" method="POST" enctype="multipart/form-data" onsubmit="return validatePostForm()">
+        <div class="form-group">
+            <label for="objectName">Nome do Objeto:</label>
+            <input type="text" id="objectName" name="objectName" placeholder="Ex.: iPhone 12 Preto, Honda CG 160, etc." required>
+        </div>
 
     
         <div class="form-group image-container" id="image-fields">
@@ -16,7 +20,7 @@
 
         <div class="form-group">
             <label for="reward">Valor da Recompensa:</label>
-            <input type="text" id="reward" name="reward" required oninput="formatCurrency(this)">
+            <input type="text" id="reward" name="reward" required oninput="formatCurrency(this)" inputmode="numeric" placeholder="R$ 0,00">
         </div>
 
         <div class="form-group">
@@ -74,7 +78,7 @@
         <div id="eletronicoFields" style="display: none;">
             <div class="form-group">
                 <label for="identifier">Código Identificador:</label>
-                <input type="text" id="identifier" name="identifier">
+                <input type="text" id="identifier" name="identifier" placeholder="Ex.: IMEI, n° de série">
             </div>
             <div class="form-group">
                 <label for="brandtelefono">Marca:</label>
@@ -108,11 +112,11 @@
             </div>
             <div class="form-group">
                 <label for="plate">Placa:</label>
-                <input type="text" id="plate" name="plate">
+                <input type="text" id="plate" name="plate" maxlength="8" autocomplete="off" placeholder="ABC1D23 ou ABC-1234" oninput="formatPlate(this)">
             </div>
             <div class="form-group">
                 <label for="chassis">Chassi:</label>
-                <input type="text" id="chassis" name="chassis">
+                <input type="text" id="chassis" name="chassis" maxlength="17" placeholder="17 caracteres" oninput="onlyAlphaNumUpper(this)">
             </div>
             <div class="form-group">
                 <label for="vehicleType">Tipo:</label>
@@ -151,4 +155,13 @@
     }
 
     
+    function validatePostForm() {
+        const name = (document.getElementById('objectName')?.value || '').trim();
+        if (!name) {
+            alert('Informe o nome do objeto.');
+            document.getElementById('objectName')?.focus();
+            return false;
+        }
+        return true;
+    }
 </script>

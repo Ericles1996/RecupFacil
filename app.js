@@ -23,7 +23,8 @@ const app = express();
 
  
 
-app.use('/uploads', express.static('public/img/uploads'));
+// Garante caminho absoluto para uploads em qualquer ambiente
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'img', 'uploads')));
 
 
 
@@ -186,3 +187,26 @@ app.post('/add-record', async (req, res) => {
   }
 });
 
+// Extrai o "Nome do objeto: ..." do campo de info adicionais
+Handlebars.registerHelper('getObjectName', function (s) {
+  try {
+    if (!s || typeof s !== 'string') return '';
+    const lines = s.split(/\r?\n/);
+    const first = (lines[0] || '').trim();
+    const m = first.match(/^Nome do objeto:\s*(.+)$/i);
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+});
+
+// Remove a linha de "Nome do objeto:" e retorna apenas o restante
+Handlebars.registerHelper('stripObjectName', function (s) {
+  try {
+    if (!s || typeof s !== 'string') return '';
+    const lines = s.split(/\r?\n/);
+    if (lines.length === 0) return '';
+    if (/^Nome do objeto:\s*/i.test((lines[0] || '').trim())) {
+      return lines.slice(1).join('\n');
+    }
+    return s;
+  } catch (e) { return s || ''; }
+});

@@ -9,6 +9,10 @@ const Objeto = sequelize.define('Objeto', {
         primaryKey: true,
         autoIncrement: true
     },
+    nomeobjeto: {
+        type: DataTypes.STRING(150),
+        allowNull: true
+    },
     recompensa: {
         type: DataTypes.STRING(10),
         allowNull: true

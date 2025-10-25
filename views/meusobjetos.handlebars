@@ -39,6 +39,9 @@
             {{/if}}
           </div>
 
+          {{#if this.nomeobjeto}}
+            <h3 class="objeto-nome"><strong>Nome:</strong> {{this.nomeobjeto}}</h3>
+          {{/if}}
           <h3 class="objeto-nome"><strong>Recompensa:</strong> <span class="recompensa-color">{{this.recompensa}}</span></h3>
           <p class="objeto-descricao"><strong>Crime:</strong> <span class="crime-color">{{this.crime}}</span></p>
           <p class="objeto-cor"><strong>Cor:</strong> {{this.cor}}</p>
@@ -76,3 +79,4 @@
       }
     }
 </script>
+
