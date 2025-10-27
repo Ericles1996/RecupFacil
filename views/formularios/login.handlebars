@@ -30,7 +30,7 @@
 
             </div>
         </form>
-        <p>Ainda não tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>.</p>
+        <p>Ainda nÃ£o tem uma conta? <a href="/cadastro">Cadastre-se aqui</a>.</p>
     </div>
     </div>
     
@@ -55,7 +55,7 @@
           if (resp.status === 401) {
             let data = {};
             try { data = await resp.json(); } catch(_) {}
-            const msg = (data && data.message) ? data.message : 'E-mail ou senha inválidos.';
+            const msg = (data && data.message) ? data.message : 'E-mail ou senha invï¿½lidos.';
             alertBox.textContent = msg;
             alertBox.style.display = 'block';
             return;
@@ -71,7 +71,7 @@
           alertBox.textContent = 'Erro no servidor. Tente novamente.';
           alertBox.style.display = 'block';
         } catch(err) {
-          alertBox.textContent = 'Falha de rede. Verifique sua conexão.';
+          alertBox.textContent = 'Falha de rede. Verifique sua conexï¿½o.';
           alertBox.style.display = 'block';
         }
       });

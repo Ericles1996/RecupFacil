@@ -31,7 +31,7 @@ async function registrarAuditoria(id_usuario, tipo_acao, detalhes, resultado) {
 
 
 //============================================================
-//              cadastro de usuÃ¡rio
+//              cadastro de Usuário
 //============================================================
 
 
@@ -42,7 +42,7 @@ const cadastrarUsuario = async (req, res) => {
         if (password !== confirm_password) {
             return res.send(`
                 <script>
-                    alert('As senhas nÃ£o coincidem. Por favor, tente novamente.');
+                    alert('As senhas não coincidem. Por favor, tente novamente.');
                     window.history.back();
                 </script>
             `);
@@ -55,7 +55,18 @@ const cadastrarUsuario = async (req, res) => {
         const usuarioStatus = status || 'Ativo';
 
 
-        // Inserir o usuÃ¡rio na tabela USUARIO
+        // Inserir o Usuário na tabela USUARIO
+        // Impedir cadastro com e-mail duplicado
+        const existente = await Usuario.findOne({ where: { email } });
+        if (existente) {
+            return res.send(`
+                <script>
+                    alert('Este e-mail já está cadastrado. Use outro e-mail.');
+                    window.history.back();
+                </script>
+            `);
+        }
+
         const usuario = await Usuario.create({
             nome: username,
             cpf: cpf,
@@ -84,7 +95,7 @@ const cadastrarUsuario = async (req, res) => {
             });
         }
 
-        // Inserir o endereÃ§o na tabela ENDERECO
+        // Inserir o endereço na tabela ENDERECO
         await Endereco.create({
             id_usuario: usuario.id,
             numero: number,
@@ -95,27 +106,27 @@ const cadastrarUsuario = async (req, res) => {
             estado: state
         });
 
-    // Responder com uma mensagem de alerta e redirecionar para a pÃ¡gina de login
+    // Responder com uma mensagem de alerta e redirecionar para a página de login
 
     const nivel = req.session.nivel;
     if (nivel === '2') {
         res.send(`
             <script>
-                alert('UsuÃ¡rio cadastrado com sucesso');
+                alert('Usuário cadastrado com sucesso');
                 window.location.href = '/gerenciarusuario';
             </script>
         `);
     } else {
         res.send(`
             <script>
-                alert('UsuÃ¡rio cadastrado com sucesso');
+                alert('Usuário cadastrado com sucesso');
                 window.location.href = '/login';
             </script>
         `);
     }
 } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Erro ao cadastrar usuÃ¡rio' });
+    res.status(500).json({ message: 'Erro ao cadastrar usuário' });
 }
 };
 
@@ -132,7 +143,7 @@ const getDashboard = async (req, res) => {
 
         const where = {};
         if (status && status !== 'todos') {
-            where.status = status; // valores esperados: 'Roubado', 'Furtado', 'Recuperado'
+            where.status = status; // valores esperados: 'Em andamento', 'Recuperado', 'Perdido', 'Arquivado'
         }
         if (categoria && categoria !== 'todas') {
             where.categoria = categoria; // valores: 'eletronico', 'veiculo', 'outro'
@@ -144,7 +155,7 @@ const getDashboard = async (req, res) => {
         ]);
 
         const emAndamento = await Objeto.count({
-            where: { ...where, status: { [Op.ne]: 'Recuperado' } }
+            where: { ...where, status: 'Em andamento' }
         });
 
         const taxaRecuperacao = totalObjetos > 0 ? Math.round((totalRecuperados / totalObjetos) * 100) : 0;
@@ -242,14 +253,14 @@ const listarUsuarios = async (req, res) => {
             }]
         });
         
-        // Converte as instÃ¢ncias em objetos simples
+        // Converte as instâncias em objetos simples
         const usuariosPlain = usuarios.map(usuario => usuario.get({ plain: true }));
-        console.log('UsuÃ¡rios encontrados:', usuariosPlain); 
+        console.log('Usuários encontrados:', usuariosPlain); 
 
         res.render('gerenciarusuario', { usuarios: usuariosPlain });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Erro ao listar usuÃ¡rios' });
+        res.status(500).json({ message: 'Erro ao listar Usuários' });
     }
 };
 
@@ -258,12 +269,12 @@ const listarUsuarios = async (req, res) => {
 //                     excluir usuarios
 //============================================================
 const excluirUsuario = async (req, res) => {
-    const { id } = req.params; // ID do usuÃ¡rio a ser excluÃ­do
+    const { id } = req.params; // ID do Usuário a ser excluído
     const idAdmin = req.session.userId; // ID do administrador que realizou a aÃ§Ã£o
     const usuario = await Usuario.findByPk(id);
 
     try {
-        // Primeiro, busca os objetos associados ao usuÃ¡rio
+        // Primeiro, busca os objetos associados ao Usuário
         const objetos = await Objeto.findAll({ where: { id_usuario: id } });
 
         for (const objeto of objetos) {
@@ -275,51 +286,51 @@ const excluirUsuario = async (req, res) => {
             await Eletronico.destroy({ where: { id_objeto: objeto.id } });
         }
 
-        // Exclui os objetos associados ao usuÃ¡rio
+        // Exclui os objetos associados ao Usuário
         await Objeto.destroy({ where: { id_usuario: id } });
 
-        // Exclui os telefones associados ao usuÃ¡rio
+        // Exclui os telefones associados ao Usuário
         await Telefone.destroy({ where: { id_usuario: id } });
 
-        // Exclui o endereÃ§o associado ao usuÃ¡rio
+        // Exclui o endereço associado ao Usuário
         await Endereco.destroy({ where: { id_usuario: id } });
 
-        // Exclui o usuÃ¡rio
+        // Exclui o Usuário
         await Usuario.destroy({ where: { id } });
 
         // Registrar auditoria (sucesso)
         await registrarAuditoria(
             idAdmin,
-            'ExclusÃ£o',
-            `UsuÃ¡rio com ID: ${id} NOME: ${usuario.nome} e seus dados associados foram excluÃ­dos.`,
+            'Exclusão',
+            `Usuário com ID: ${id} NOME: ${usuario.nome} e seus dados associados foram excluídos.`,
             'Sucesso'
         );
 
         // Enviar uma resposta de sucesso
         res.send(`
             <script>
-                alert('UsuÃ¡rio excluÃ­do com sucesso');
+                alert('Usuário excluído com sucesso');
                 window.location.href = '/gerenciarusuario';
             </script>
         `);
     } catch (error) {
-        console.error('Erro ao excluir usuÃ¡rio:', error);
+        console.error('Erro ao excluir Usuário:', error);
 
         // Registrar auditoria (falha)
         await registrarAuditoria(
             idAdmin,
-            'ExclusÃ£o',
-            `Tentativa de excluir o usuÃ¡rio com ID ${id}.`,
+            'Exclusão',
+            `Tentativa de excluir o Usuário com ID ${id}.`,
             'Falha'
         );
 
-        res.status(500).json({ message: 'Erro ao excluir usuÃ¡rio' });
+        res.status(500).json({ message: 'Erro ao excluir Usuário' });
     }
 };
 
 
 //============================================================
-//              editar usuÃ¡rio pelo administrador
+//              editar Usuário pelo administrador
 //============================================================
 
 const editarNivelPermissao = async (req, res) => {
@@ -330,25 +341,25 @@ const editarNivelPermissao = async (req, res) => {
     try {
         // Verificar se o ID do administrador estÃ¡ disponÃ­vel
         if (!idAdmin) {
-            console.error('ID do administrador nÃ£o definido. Auditoria nÃ£o serÃ¡ registrada.');
+            console.error('ID do administrador não definido. Auditoria não serÃ¡ registrada.');
             return res.status(500).json({ message: 'Erro interno.' });
         }
 
-        // Verificar se o usuÃ¡rio existe
+        // Verificar se o Usuário existe
         const usuario = await Usuario.findByPk(user_id);
 
         if (!usuario) {
             await registrarAuditoria(
                 idAdmin,
-                'EdiÃ§Ã£o',
-                `Tentativa de editar o nÃ­vel de permissÃ£o ou status do usuÃ¡rio com ID ${user_id}, mas o usuÃ¡rio nÃ£o foi encontrado.`,
+                'edição',
+                `Tentativa de editar o nÃ­vel de permissÃ£o ou status do Usuário com ID ${user_id}, mas o Usuário não foi encontrado.`,
                 'Falha'
             );
 
-            return res.status(404).json({ message: 'UsuÃ¡rio nÃ£o encontrado.' });
+            return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
-        // Atualizar o nÃ­vel de permissÃ£o e o status do usuÃ¡rio
+        // Atualizar o nÃ­vel de permissÃ£o e o status do Usuário
         await Usuario.update(
             { 
                 nivel: permission_level, 
@@ -360,12 +371,12 @@ const editarNivelPermissao = async (req, res) => {
         // Registrar auditoria de sucesso
         await registrarAuditoria(
             idAdmin,
-            'EdiÃ§Ã£o',
-            `NÃ­vel de permissÃ£o ou status do usuÃ¡rio com ID: ${user_id} nome: ${usuario.nome} foram atualizados. Novo nÃ­vel: ${permission_level}, Novo status: ${status}.`,
+            'edição',
+            `NÃ­vel de permissÃ£o ou status do Usuário com ID: ${user_id} nome: ${usuario.nome} foram atualizados. Novo nÃ­vel: ${permission_level}, Novo status: ${status}.`,
             'Sucesso'
         );
 
-        // Redirecionar de volta para a pÃ¡gina de gerenciamento de usuÃ¡rios
+        // Redirecionar de volta para a página de gerenciamento de Usuários
         res.redirect('/gerenciarusuario');
     } catch (error) {
         console.error('Erro ao atualizar o nÃ­vel de permissÃ£o:', error);
@@ -374,8 +385,8 @@ const editarNivelPermissao = async (req, res) => {
         if (idAdmin) {
             await registrarAuditoria(
                 idAdmin,
-                'EdiÃ§Ã£o',
-                `Tentativa de atualizar o nÃ­vel de permissÃ£o ou status do usuÃ¡rio com ID ${user_id}.`,
+                'edição',
+                `Tentativa de atualizar o nÃ­vel de permissÃ£o ou status do Usuário com ID ${user_id}.`,
                 'Falha'
             );
         }
@@ -436,18 +447,18 @@ const cadastrarObjeto = async (req, res) => {
             objectType
         } = req.body;
 
-        // Obter o id do usuÃ¡rio da sessÃ£o
+        // Obter o id do Usuário da sessÃ£o
         const userId = req.session.userId;
 
-        // Busca o usuÃ¡rio logado para verificar o status
+        // Busca o Usuário logado para verificar o status
         const usuario = await Usuario.findOne({
             where: { id: userId }
         });
 
        
 
-        // Log do ID do usuÃ¡rio e dados enviados
-        console.log("ID do usuÃ¡rio:", userId);
+        // Log do ID do Usuário e dados enviados
+        console.log("ID do Usuário:", userId);
         console.log("Dados enviados:", req.body);
 
         // Validação: nome do objeto é obrigatório
@@ -543,18 +554,18 @@ const cadastrarObjeto = async (req, res) => {
 };
 
 //============================================================
-//                      ediÃ§Ã£o do objeto (post)
+//                      edição do objeto (post)
 //============================================================
 
 const editarObjeto = async (req, res) => {
     const objetoId = req.params.id;
-    const idUsuario = req.session.userId; // ID do usuÃ¡rio que realizou a aÃ§Ã£o
+    const idUsuario = req.session.userId; // ID do Usuário que realizou a aÃ§Ã£o
     const nivel = req.session.nivel;
 
     try {
-        // Verificar se o ID do usuÃ¡rio estÃ¡ disponÃ­vel
+        // Verificar se o ID do Usuário estÃ¡ disponÃ­vel
         if (!idUsuario) {
-            console.error('ID do usuÃ¡rio nÃ£o definido. Auditoria nÃ£o serÃ¡ registrada.');
+            console.error('ID do Usuário não definido. Auditoria não serÃ¡ registrada.');
             return res.status(500).json({ error: 'Erro interno.' });
         }
 
@@ -563,20 +574,20 @@ const editarObjeto = async (req, res) => {
         // Buscar objeto pelo ID
         const objeto = await Objeto.findByPk(objetoId);
         if (!objeto) {
-            console.error('Objeto nÃ£o encontrado no banco de dados.');
+            console.error('Objeto não encontrado no banco de dados.');
 
             // Registrar auditoria de falha
             await registrarAuditoria(
                 idUsuario,
-                'EdiÃ§Ã£o',
-                `Tentativa de editar objeto com ID ${objetoId}, mas o objeto nÃ£o foi encontrado.`,
+                'edição',
+                `Tentativa de editar objeto com ID ${objetoId}, mas o objeto não foi encontrado.`,
                 'Falha'
             );
 
-            return res.status(404).json({ error: 'Objeto nÃ£o encontrado.' });
+            return res.status(404).json({ error: 'Objeto não encontrado.' });
         }
 
-        // Buscar o usuÃ¡rio responsÃ¡vel pelo objeto
+        // Buscar o Usuário responsÃ¡vel pelo objeto
         const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' Ã© a chave estrangeira
         
         const {
@@ -612,11 +623,11 @@ const editarObjeto = async (req, res) => {
         });
         console.log('Objeto atualizado com sucesso.');
 
-        // Registrar auditoria de atualizaÃ§Ã£o do objeto principal
+        // Registrar auditoria de atualização do objeto principal
         await registrarAuditoria(
             idUsuario,
-            'EdiÃ§Ã£o',
-            `Objeto com ID ${objetoId} foi atualizado. O objeto pertence ao usuÃ¡rio com id: ${usuarioResponsavel.id} nome: ${usuarioResponsavel.nome}`,
+            'edição',
+            `Objeto com ID ${objetoId} foi atualizado. O objeto pertence ao Usuário com id: ${usuarioResponsavel.id} nome: ${usuarioResponsavel.nome}`,
             'Sucesso'
         );
 
@@ -637,7 +648,7 @@ const editarObjeto = async (req, res) => {
             }
             console.log('Novas imagens adicionadas com sucesso.');
         } else {
-            console.log('Nenhuma nova imagem recebida para atualizaÃ§Ã£o.');
+            console.log('Nenhuma nova imagem recebida para atualização.');
         }
 
         // Atualizar tabela relacionada com base na categoria
@@ -684,7 +695,7 @@ const editarObjeto = async (req, res) => {
                 console.log('Novo VeÃ­culo criado com sucesso.');
             }
         } else {
-            console.warn('Categoria nÃ£o reconhecida ou nÃ£o aplicÃ¡vel para atualizaÃ§Ã£o.');
+            console.warn('Categoria não reconhecida ou não aplicÃ¡vel para atualização.');
         }
 
         // Redirecionar com mensagem de sucesso
@@ -704,7 +715,7 @@ const editarObjeto = async (req, res) => {
         if (idUsuario) {
             await registrarAuditoria(
                 idUsuario,
-                'EdiÃ§Ã£o',
+                'edição',
                 `Tentativa de editar objeto com ID ${objetoId}.`,
                 'Falha'
             );
@@ -743,7 +754,7 @@ const excluirImagem = async (req, res) => {
                 </script>
             `);
         } else {
-            res.status(404).json({ message: 'Imagem nÃ£o encontrada' });
+            res.status(404).json({ message: 'Imagem não encontrada' });
         }
     } catch (error) {
         console.error('Erro ao excluir imagem:', error);
@@ -754,7 +765,7 @@ const excluirImagem = async (req, res) => {
 
 
 //============================================================
-//              funÃ§Ã£o para login e logout do usuÃ¡rio
+//              funÃ§Ã£o para login e logout do Usuário
 //============================================================
 
 // Controller de login
@@ -762,7 +773,7 @@ const loginController = async (req, res) => {
     const { username, password } = req.body;
 
     try {
-        // Verifique se o usuÃ¡rio existe pelo email
+        // Verifique se o Usuário existe pelo email
         const usuario = await Usuario.findOne({ where: { email: username } });
         
         if (!usuario) {
@@ -779,10 +790,10 @@ const loginController = async (req, res) => {
         // Se a autenticaÃ§Ã£o for bem-sucedida, inicie a sessÃ£o
         if (!req.session) {
             console.error('Sesão não inicializada');
-            return res.status(500).json({ message: 'Erro no servidor. SessÃ£o nÃ£o inicializada.' });
+            return res.status(500).json({ message: 'Erro no servidor. SessÃ£o não inicializada.' });
         }
 
-        // Armazena o ID do usuÃ¡rio e o nÃ­vel na sessÃ£o
+        // Armazena o ID do Usuário e o nÃ­vel na sessÃ£o
         req.session.userId = usuario.id; 
         req.session.nivel = usuario.nivel;
 
@@ -790,7 +801,7 @@ const loginController = async (req, res) => {
         req.session.nomeUsuario = usuario.nome;
         req.session.save((err) => {
             if (err) { console.error('Erro ao salvar sessão:', err); }
-            return res.redirect('/home');
+            return res.status(200).json({ success: true });
         });
         
      
@@ -803,7 +814,7 @@ const loginController = async (req, res) => {
 
 
 //============================================================
-//                  funÃ§Ã£o de logout do usuÃ¡rio
+//                  funÃ§Ã£o de logout do Usuário
 //============================================================
 
 const logoutController = (req, res) => {
@@ -812,12 +823,76 @@ const logoutController = (req, res) => {
             console.error('Erro ao encerrar sessÃ£o:', err);
             return res.status(500).json({ message: 'Erro ao encerrar sessÃ£o.' });
         }
-        res.redirect('/home'); // Redireciona para a pÃ¡gina de login
+        res.redirect('/home'); // Redireciona para a página de login
     });
 };
 
 //============================================================
-//      resgatar os objetos postados pelo usuÃ¡rio logado
+//           Ajuda: listar vídeos Passo a Passo (Cloudinary)
+//============================================================
+const getPassoAPassoVideos = async (req, res) => {
+    try {
+        let resources = [];
+        if (cloudinary.search && typeof cloudinary.search.expression === 'function') {
+            const expr = 'resource_type:video AND (folder="recupfacil/videos" OR folder="recupfácil/videos")';
+            const result = await cloudinary.search
+                .expression(expr)
+                .sort_by('public_id','desc')
+                .max_results(200)
+                .execute();
+            resources = (result && result.resources) ? result.resources : [];
+        } else {
+            const list1 = await cloudinary.api.resources({ type: 'upload', resource_type: 'video', prefix: 'recupfacil/videos/', max_results: 100 }).catch(() => ({ resources: [] }));
+            const list2 = await cloudinary.api.resources({ type: 'upload', resource_type: 'video', prefix: 'recupfácil/videos/', max_results: 100 }).catch(() => ({ resources: [] }));
+            const map = new Map();
+            [...(list1.resources || []), ...(list2.resources || [])].forEach(r => map.set(r.public_id, r));
+            resources = Array.from(map.values());
+        }
+
+        const videos = (resources || []).map(r => {
+            const publicId = r.public_id;
+            const url = r.secure_url || cloudinary.url(publicId, { resource_type: 'video', secure: true });
+            const thumb = cloudinary.url(publicId + '.jpg', { resource_type: 'video', secure: true, width: 480, height: 270, crop: 'fill', gravity: 'auto' });
+            const baseId = (publicId || '').split('/').pop() || '';
+            // Preferir título definido no Cloudinary (context.metadata)
+            let tmpName = (r && r.context && r.context.custom && r.context.custom.title) || r.filename || baseId;
+            // Remover token específico (case-insensível)
+            tmpName = String(tmpName).replace(/aoxnc2/gi, '');
+            // Normalizar separadores e espaços
+            let nameRaw = (tmpName || '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+            if (nameRaw) {
+                const hasVowel = /[aeiouáéíóúâêîôûàèìòù]/i;
+                const parts = nameRaw.split(' ');
+                // Remover sufixos aleatórios (sem vogais) e tokens alfanuméricos (ex.: Hfvhzf, Vzpmnz, T1o93t)
+                while (parts.length > 1) {
+                    const last = parts[parts.length - 1];
+                    const hasDigit = /\d/.test(last);
+                    const hasLetter = /[a-zA-Záéíóúâêîôûàèìòù]/i.test(last);
+                    const isAlphaNumMix = hasDigit && /[A-Za-z]/.test(last) && /^[A-Za-z0-9]{3,}$/.test(last);
+                    if (!hasVowel.test(last) || isAlphaNumMix) {
+                        parts.pop();
+                        continue;
+                    }
+                    break;
+                }
+                nameRaw = parts.join(' ');
+            }
+            // Title Case preservando acentos
+            const name = nameRaw
+                ? nameRaw.toLowerCase().split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+                : '';
+            return { publicId, url, thumb, name, duration: r.duration, format: r.format, bytes: r.bytes };
+        });
+
+        return res.render('ajuda/passoapasso', { videos, count: videos.length, activePage: 'ajuda' });
+    } catch (error) {
+        console.error('Erro ao listar vídeos Cloudinary:', error);
+        return res.status(500).render('ajuda/passoapasso', { videos: [], count: 0, error: 'Falha ao carregar vídeos.', activePage: 'ajuda' });
+    }
+};
+
+//============================================================
+//      resgatar os objetos postados pelo Usuário logado
 //============================================================
 
 const listarObjetosUsuario = async (req, res) => { 
@@ -853,19 +928,19 @@ const listarObjetosUsuario = async (req, res) => {
 
 
 //============================================================
-// excluir post (objeto do usuÃ¡rio)
+// excluir post (objeto do Usuário)
 //============================================================
 
 
 const excluirObjeto = async (req, res) => {
     const objetoId = req.params.id;
-    const idUsuario = req.session.userId; // ID do usuÃ¡rio que realizou a aÃ§Ã£o
+    const idUsuario = req.session.userId; // ID do Usuário que realizou a aÃ§Ã£o
     const nivel = req.session.nivel;
 
     try {
-        // Verificar se o ID do usuÃ¡rio estÃ¡ disponÃ­vel
+        // Verificar se o ID do Usuário estÃ¡ disponÃ­vel
         if (!idUsuario) {
-            console.error('ID do usuÃ¡rio nÃ£o definido. Auditoria nÃ£o serÃ¡ registrada.');
+            console.error('ID do Usuário não definido. Auditoria não serÃ¡ registrada.');
             return res.status(500).json({ message: 'Erro interno.' });
         }
 
@@ -876,12 +951,12 @@ const excluirObjeto = async (req, res) => {
             // Registrar auditoria de falha
             await registrarAuditoria(
                 idUsuario,
-                'ExclusÃ£o',
-                `Tentativa de excluir o objeto com ID ${objetoId}, mas o objeto nÃ£o foi encontrado.`,
+                'Exclusão',
+                `Tentativa de excluir o objeto com ID ${objetoId}, mas o objeto não foi encontrado.`,
                 'Falha'
             );
 
-            return res.status(404).json({ error: 'Objeto nÃ£o encontrado.' });
+            return res.status(404).json({ error: 'Objeto não encontrado.' });
         }
 
         const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' Ã© a chave estrangeira
@@ -903,23 +978,23 @@ const excluirObjeto = async (req, res) => {
         // Registrar auditoria de sucesso
         await registrarAuditoria(
             idUsuario,
-            'ExclusÃ£o',
-            `Objeto com ID ${objetoId} e categoria ${objeto.categoria} foi excluÃ­do. O objeto pertence ao usuÃ¡rio com id: ${usuarioResponsavel.id} nome: ${usuarioResponsavel.nome}`,
+            'Exclusão',
+            `Objeto com ID ${objetoId} e categoria ${objeto.categoria} foi excluído. O objeto pertence ao Usuário com id: ${usuarioResponsavel.id} nome: ${usuarioResponsavel.nome}`,
             'Sucesso'
         );
 
-        // Redirecionar para a pÃ¡gina correta com mensagem de sucesso
+        // Redirecionar para a página correta com mensagem de sucesso
         if (nivel === '2') {
             res.send(`
                 <script>
-                    alert('Objeto excluÃ­do com sucesso');
+                    alert('Objeto excluído com sucesso');
                     window.location.href = '/gerenciarobjeto';
                 </script>
             `);
         } else {
             res.send(`
                 <script>
-                    alert('Objeto excluÃ­do com sucesso');
+                    alert('Objeto excluído com sucesso');
                     window.location.href = '/meusobjetos';
                 </script>
             `);
@@ -931,7 +1006,7 @@ const excluirObjeto = async (req, res) => {
         if (idUsuario) {
             await registrarAuditoria(
                 idUsuario,
-                'ExclusÃ£o',
+                'Exclusão',
                 `Tentativa de excluir o objeto com ID ${objetoId}.`,
                 'Falha'
             );
@@ -1014,7 +1089,7 @@ const viewObjeto = async (req, res) => {
 
         // Verifica se o objeto foi encontrado
         if (!objeto) {
-            return res.status(404).render('error', { message: 'Objeto nÃ£o encontrado.' });
+            return res.status(404).render('error', { message: 'Objeto não encontrado.' });
         }
 
         let detalhesAdicionais = null;
@@ -1061,7 +1136,7 @@ const gerenciarObjetos = async (req, res) => {
         });
 
         // Verifica se a busca retornou objetos
-        console.log("Objetos encontrados:", objetos); // Para depuraÃ§Ã£o
+        console.log("Objetos encontrados:", objetos); // Para depuração
 
         // Renderiza a view com a lista de objetos
         res.render('gerenciarobjeto', { objetos });
@@ -1110,21 +1185,21 @@ const buscarObjetosPorCategoria = async (categoria) => {
 const buscarObjetosPorStatus = async (status, usuarioId) => {
     try {
         console.log('Status recebido para o filtro:', status);
-        console.log('ID do usuÃ¡rio:', usuarioId);
+        console.log('ID do Usuário:', usuarioId);
 
-        const statusValidos = ['todos', 'roubado', 'furtado', 'recuperado'];
+        const statusValidos = ['todos', 'Em andamento', 'Recuperado', 'Perdido', 'Arquivado'];
         if (!statusValidos.includes(status)) {
             throw new Error('Status invÃ¡lido.');
         }
 
-        let whereClause = { id_usuario: usuarioId }; // Filtra pelos objetos do usuÃ¡rio
+        let whereClause = { id_usuario: usuarioId }; // Filtra pelos objetos do Usuário
 
         if (status !== 'todos') {
-            whereClause.status = status; // Adiciona o filtro de status se nÃ£o for 'todos'
+            whereClause.status = status; // Adiciona o filtro de status se não for 'todos'
         }
 
-        // Log da clÃ¡usula where antes da consulta
-        console.log('ClÃ¡usula WHERE:', whereClause);
+        // Log da Cláusula where antes da consulta
+        console.log('Cláusula WHERE:', whereClause);
 
         // Busca os objetos com base no filtro
         const objetos = await Objeto.findAll({
@@ -1145,7 +1220,7 @@ const buscarObjetosPorStatus = async (status, usuarioId) => {
 
 
 //============================================================
-//              carrregar dados do usuÃ¡rio 
+//              carrregar dados do Usuário 
 //============================================================
 
 
@@ -1160,30 +1235,30 @@ const CarregarDadosUsuario = async (req, res) => {
             ]
         });
 
-        console.log('Dados do UsuÃ¡rio:', usuario.toJSON());
+        console.log('Dados do Usuário:', usuario.toJSON());
         console.log('Telefones:', usuario.Telefones);
-        console.log('EndereÃ§os:', usuario.Enderecos);
+        console.log('endereços:', usuario.Enderecos);
 
         if (!usuario) {
-            return res.status(404).json({ message: 'UsuÃ¡rio nÃ£o encontrado' });
+            return res.status(404).json({ message: 'Usuário não encontrado' });
         }
 
         res.render('meusdados', { usuario });
     } catch (error) {
-        console.error("Erro ao buscar dados do usuÃ¡rio:", error);
-        res.status(500).json({ message: 'Erro ao buscar dados do usuÃ¡rio' });
+        console.error("Erro ao buscar dados do Usuário:", error);
+        res.status(500).json({ message: 'Erro ao buscar dados do Usuário' });
     }
 };
 
 //====================================================
-// carregar dados do usuario para ediÃ§Ã£o / sÃ¡bado
+// carregar dados do usuario para edição / sábado
 //===================================================
 
 const carregarDadosUsuarioParaEdicao = async (req, res) => {
     const userId = req.params.id; 
 
     try {
-        // Busca o usuÃ¡rio no banco de dados, incluindo telefones e endereÃ§os
+        // Busca o Usuário no banco de dados, incluindo telefones e endereços
         const usuario = await Usuario.findByPk(userId, {
             include: [
                 {
@@ -1199,23 +1274,23 @@ const carregarDadosUsuarioParaEdicao = async (req, res) => {
         });
 
         if (!usuario) {
-            return res.status(404).render('meusdados', { message: 'UsuÃ¡rio nÃ£o encontrado.' });
+            return res.status(404).render('meusdados', { message: 'Usuário não encontrado.' });
         }
 
-        // Renderiza a view de ediÃ§Ã£o com os dados do usuÃ¡rio, telefones e endereÃ§os
+        // Renderiza a view de edição com os dados do Usuário, telefones e endereços
         res.render('formularios/editarusuario', { 
             usuario,
             layout: 'formularios'
         });
     } catch (error) {
-        console.error('Erro ao buscar usuÃ¡rio:', error);
-        res.status(500).send('Erro ao buscar usuÃ¡rio.');
+        console.error('Erro ao buscar Usuário:', error);
+        res.status(500).send('Erro ao buscar Usuário.');
     }
 };
 
 
 //==========================================================================
-//   atualizar dados do usuario no banco / sÃ¡bado
+//   atualizar dados do usuario no banco / sábado
 //==========================================================================
 
 const atualizarUsuario = async (req, res) => {
@@ -1223,13 +1298,13 @@ const atualizarUsuario = async (req, res) => {
     const { nome, email, cpf, sexo, data_nascimento, nivel, status } = req.body;
 
     try {
-        // Verifica se o usuÃ¡rio existe
+        // Verifica se o Usuário existe
         const usuario = await Usuario.findByPk(user_id);
         if (!usuario) {
-            return res.status(404).json({ message: 'UsuÃ¡rio nÃ£o encontrado.' });
+            return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
-        // Atualiza os dados do usuÃ¡rio
+        // Atualiza os dados do Usuário
         await Usuario.update(
             {
                 nome,
@@ -1244,7 +1319,7 @@ const atualizarUsuario = async (req, res) => {
         );
 
 
-   // Captura todos os telefones existentes para atualizaÃ§Ã£o
+   // Captura todos os telefones existentes para atualização
 const telefoneKeys = Object.keys(req.body).filter(key => key.startsWith('telefone_numero_'));
 
 const telefonesPromises = telefoneKeys.map(key => {
@@ -1293,15 +1368,15 @@ const enderecosPromises = enderecoKeys.map(key => {
     const cidade = req.body[`cidade_${enderecoId}`]; 
     const estado = req.body[`estado_${enderecoId}`]; 
 
-    // Adiciona logs para depuraÃ§Ã£o
-    console.log(`Atualizando endereÃ§o ID ${enderecoId}:`, { rua, numero, bairro, cidade, estado });
+    // Adiciona logs para depuração
+    console.log(`Atualizando endereço ID ${enderecoId}:`, { rua, numero, bairro, cidade, estado });
 
-    // Atualiza o endereÃ§o
+    // Atualiza o endereço
     return Endereco.update(
         { rua, numero, bairro, cidade, estado },
         { where: { id: enderecoId } } // Atualiza a linha correspondente na tabela Endereco
     ).catch(error => {
-        console.error(`Erro ao atualizar endereÃ§o ID ${enderecoId}:`, error);
+        console.error(`Erro ao atualizar endereço ID ${enderecoId}:`, error);
         return Promise.resolve();
     });
 });
@@ -1316,8 +1391,8 @@ await Promise.all(enderecosPromises);
         `);
    
     } catch (error) {
-        console.error('Erro ao atualizar o usuÃ¡rio:', error);
-        res.status(500).json({ message: 'Erro ao atualizar o usuÃ¡rio.' });
+        console.error('Erro ao atualizar o Usuário:', error);
+        res.status(500).json({ message: 'Erro ao atualizar o Usuário.' });
     }
 };
 
@@ -1326,7 +1401,7 @@ await Promise.all(enderecosPromises);
 
 
 //============================================================
-//                   buscar o usuÃ¡rio
+//                   buscar o Usuário
 //============================================================
 
 
@@ -1341,12 +1416,12 @@ const buscarUsuario = async (req, res) => {
         });
 
         if (!usuario) {
-            return res.status(404).json({ message: 'UsuÃ¡rio nÃ£o encontrado' });
+            return res.status(404).json({ message: 'Usuário não encontrado' });
         }
         res.render('formularios/cadastro', { usuario });
     } catch (error) {
-        console.error('Erro ao buscar usuÃ¡rio:', error);
-        res.status(500).json({ message: 'Erro ao buscar usuÃ¡rio' });
+        console.error('Erro ao buscar Usuário:', error);
+        res.status(500).json({ message: 'Erro ao buscar Usuário' });
     }
 };
 
@@ -1435,12 +1510,12 @@ async function listarAuditorias(req, res) {
 
 async function filtrarAuditorias(req, res) {
     try {
-        // Recebe os parÃ¢metros de data do formulÃ¡rio
+        // Recebe os parÃ¢metros de data do formulário
         const { dataInicio, dataFim } = req.query;
 
         // Valida se as datas foram fornecidas
         if (!dataInicio || !dataFim) {
-            return res.status(400).send('Por favor, forneÃ§a as datas de inÃ­cio e fim.');
+            return res.status(400).send('Por favor, forneça as datas de início e fim.');
         }
 
         // Converte as datas para o formato adequado
@@ -1474,7 +1549,7 @@ async function filtrarAuditorias(req, res) {
 
 
 //============================================================
-//              validaÃ§Ã£o de e-mail (AJAX)
+//              validação de e-mail (AJAX)
 //============================================================
 module.exports = {
     cadastrarUsuario,
@@ -1502,6 +1577,8 @@ module.exports = {
     registrarAuditoria,
     listarAuditorias,
     filtrarAuditorias
+    ,
+    getPassoAPassoVideos
     
     
     

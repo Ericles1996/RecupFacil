@@ -9,9 +9,10 @@
           <label for="status">Status</label>
           <select id="status" name="status" onchange="this.form.submit()" title="Filtrar por status">
             <option value="todos" {{#ifEquals filtros.status "todos"}}selected{{/ifEquals}}>Todos</option>
-            <option value="Roubado" {{#ifEquals filtros.status "Roubado"}}selected{{/ifEquals}}>Roubado</option>
-            <option value="Furtado" {{#ifEquals filtros.status "Furtado"}}selected{{/ifEquals}}>Furtado</option>
+            <option value="Em andamento" {{#ifEquals filtros.status "Em andamento"}}selected{{/ifEquals}}>Em andamento</option>
             <option value="Recuperado" {{#ifEquals filtros.status "Recuperado"}}selected{{/ifEquals}}>Recuperado</option>
+            <option value="Perdido" {{#ifEquals filtros.status "Perdido"}}selected{{/ifEquals}}>Perdido</option>
+            <option value="Arquivado" {{#ifEquals filtros.status "Arquivado"}}selected{{/ifEquals}}>Arquivado</option>
           </select>
           <label for="categoria">Tipo</label>
           <select id="categoria" name="categoria" onchange="this.form.submit()" title="Filtrar por tipo">
@@ -56,9 +57,10 @@
   .recent table { width: 100%; border-collapse: collapse; }
   .recent th, .recent td { padding: 8px 6px; border-bottom: 1px solid #eee; font-size: 14px; }
   .status-badge { padding: 4px 8px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 600; }
-  .status-Roubado { background: #d9534f; }
-  .status-Furtado { background: #f0ad4e; }
-  .status-Recuperado { background: #5cb85c; }
+  .status-badge[data-status="Em andamento"] { background: #0275d8; }
+  .status-badge[data-status="Recuperado"] { background: #5cb85c; }
+  .status-badge[data-status="Perdido"] { background: #f0ad4e; }
+  .status-badge[data-status="Arquivado"] { background: #6c757d; }
   .obj-thumb { width: 44px; height: 44px; object-fit: cover; border-radius: 6px; }
   .table-actions a { color: #007bff; text-decoration: none; }
   @media (max-width: 960px) {
@@ -129,7 +131,7 @@
             </td>
             <td>{{crime}}</td>
             <td>
-              <span class="status-badge status-{{status}}">{{status}}</span>
+              <span class="status-badge" data-status="{{status}}">{{status}}</span>
             </td>
             <td>{{categoria}}</td>
             <td>{{#if cidade}}{{cidade}}{{#if bairro}}, {{bairro}}{{/if}}{{else}}—{{/if}}</td>

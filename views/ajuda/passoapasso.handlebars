@@ -1,0 +1,31 @@
+<link rel="stylesheet" href="/css/help.css">
+<script>(function(){try{var el=document.getElementById('menu-ajuda'); if(el) el.classList.add('selected');}catch(e){}})();</script>
+<section class="help-page">
+  <div class="container">
+    <header class="help-hero">
+      <h1>Passo a Passo</h1>
+      {{#if count}}
+        <p class="muted">{{count}} vídeos disponíveis.</p>
+      {{else}}
+        <p class="muted">Nenhum vídeo encontrado no momento.</p>
+      {{/if}}
+    </header>
+
+    {{#if videos}}
+    <div class="help-grid">
+      {{#each videos}}
+        <a class="card help-card" href="{{url}}" target="_blank" rel="noopener noreferrer">
+          <div style="position:relative;border-radius:12px;overflow:hidden;margin-bottom:10px">
+            <img src="{{thumb}}" alt="Prévia de vídeo {{@index}}" style="display:block;width:100%;height:auto;border-radius:12px;border:1px solid rgba(255,255,255,.14)">
+            <span style="position:absolute;inset:auto auto 10px 10px;background:rgba(0,0,0,.6);color:#fff;padding:4px 8px;border-radius:999px;font-size:12px">
+              Abrir vídeo
+            </span>
+          </div>
+          <h2>{{#if name}}{{name}}{{else}}Vídeo{{/if}}</h2>
+          <p class="muted">Clique para assistir em nova aba.</p>
+        </a>
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>
+</section>

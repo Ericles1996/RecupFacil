@@ -45,7 +45,7 @@ const { cadastrarUsuario, listarUsuarios, excluirUsuario, listarObjetosUsuario,
   logoutController, editarObjeto, getDashboard, listarObjetosTodos, viewObjeto, buscarObjetosPorCategoria,
   buscarObjetosPorStatus, CarregarDadosUsuario, buscarUsuario, carregarDadosUsuarioParaEdicao, 
   atualizarUsuario, gerenciarObjetos, buscarObjetos, excluirImagem, listarAuditorias,  
-  filtrarAuditorias} = require('../controllers/recupcontroller'); 
+  filtrarAuditorias, getPassoAPassoVideos} = require('../controllers/recupcontroller'); 
 
 router.post('/cadastro', cadastrarUsuario); 
 router.get('/gerenciarusuario', checkAdminLevel, listarUsuarios); 
@@ -176,8 +176,11 @@ router.get('/postar', checkAuth, async (req, res) => {
 
 
 router.get('/ajuda', (req, res) => {
-  res.render('ajuda');
+  res.render('ajuda', { activePage: 'ajuda' });
 });
+
+// Ajuda > Passo a Passo (lista vídeos do Cloudinary)
+router.get('/ajuda/passo-a-passo', getPassoAPassoVideos);
 
 
 router.get('/artigos', (req, res) => {

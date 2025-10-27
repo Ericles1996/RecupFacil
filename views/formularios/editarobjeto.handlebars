@@ -42,6 +42,7 @@
             <select id="crimeType" name="crimeType" required>
                 <option value="Roubo" {{#ifEquals objeto.crime "Roubo"}}selected{{/ifEquals}}>Roubo</option>
                 <option value="Furto" {{#ifEquals objeto.crime "Furto"}}selected{{/ifEquals}}>Furto</option>
+                <option value="Outro" {{#ifEquals objeto.crime "Outro"}}selected{{/ifEquals}}>Outro</option>
             </select>
         </div>
 
@@ -58,9 +59,10 @@
         <div class="form-group">
             <label for="status">Status:</label>
             <select id="status" name="status" required>
-                <option value="Roubado" {{#ifEquals objeto.status "Roubado"}}selected{{/ifEquals}}>Roubado</option>
-                <option value="Furtado" {{#ifEquals objeto.status "Furtado"}}selected{{/ifEquals}}>Furtado</option>
+                <option value="Em andamento" {{#ifEquals objeto.status "Em andamento"}}selected{{/ifEquals}}>Em andamento</option>
                 <option value="Recuperado" {{#ifEquals objeto.status "Recuperado"}}selected{{/ifEquals}}>Recuperado</option>
+                <option value="Perdido" {{#ifEquals objeto.status "Perdido"}}selected{{/ifEquals}}>Perdido</option>
+                <option value="Arquivado" {{#ifEquals objeto.status "Arquivado"}}selected{{/ifEquals}}>Arquivado</option>
             </select>
         </div>
 

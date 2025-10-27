@@ -24,7 +24,7 @@
           <li><a href="/dashboard" id="menu-dashboard">Dashboard</a></li>
           <li><a href="/meusobjetos" id="menu-meus-objetos">Meus Objetos</a></li>
           <li><a href="/contato" id="menu-contato">Contato</a></li>
-          <li><a href="/ajuda" id="menu-ajuda">Ajuda</a></li>
+          <li><a href="/ajuda" id="menu-ajuda" class="{{#ifEquals activePage 'ajuda'}}active{{/ifEquals}}">Ajuda</a></li>
           <li class="menu-dropdown">
             <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false" id="menu-admin">Admin</button>
             <ul class="dropdown">
@@ -48,6 +48,9 @@
       <div class="container">
         <ul class="user-actions">
           {{#if nomeUsuario}}
+            <li class="questionario-item">
+              <a class="btn btn-primary" href="https://docs.google.com/forms/d/e/1FAIpQLSfTPhCesUsDtoOryoqYsRzmf2uos3uCqpHl0wJg2a13npWH5g/viewform?usp=preview" target="_blank" rel="noopener noreferrer">Responder Questionário</a>
+            </li>
             <li class="menu-dropdown">
               <button class="dropdown-toggle" aria-haspopup="true" aria-expanded="false">Olá, {{nomeUsuario}}</button>
               <ul class="dropdown">

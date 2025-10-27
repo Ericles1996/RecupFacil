@@ -277,3 +277,11 @@ a:focus,button:focus,input:focus{outline:2px solid var(--secondary);outline-offs
 .social-links{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 0 0}
 .social-links a.btn{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff}
 .social-links a.btn:hover{background:rgba(255,255,255,.14)}
+
+/* Alinhar o botão do questionário à esquerda na barra do usuário */
+.user-actions .questionario-item{ margin-right: auto; }
+
+
+/* Cor preta no texto do botão do questionário */
+.user-actions .questionario-item > a.btn-primary{ color:#000 !important; }
+

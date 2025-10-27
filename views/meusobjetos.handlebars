@@ -7,9 +7,10 @@
         <label for="status">Status</label>
         <select id="status" name="status" onchange="this.form.submit()" title="Filtrar por status">
           <option value="todos" {{#ifEquals selectedStatus "todos"}}selected{{/ifEquals}}>Todos</option>
-          <option value="roubado" {{#ifEquals selectedStatus "roubado"}}selected{{/ifEquals}}>Roubado</option>
-          <option value="furtado" {{#ifEquals selectedStatus "furtado"}}selected{{/ifEquals}}>Furtado</option>
-          <option value="recuperado" {{#ifEquals selectedStatus "recuperado"}}selected{{/ifEquals}}>Recuperado</option>
+          <option value="Em andamento" {{#ifEquals selectedStatus "Em andamento"}}selected{{/ifEquals}}>Em andamento</option>
+          <option value="Recuperado" {{#ifEquals selectedStatus "Recuperado"}}selected{{/ifEquals}}>Recuperado</option>
+          <option value="Perdido" {{#ifEquals selectedStatus "Perdido"}}selected{{/ifEquals}}>Perdido</option>
+          <option value="Arquivado" {{#ifEquals selectedStatus "Arquivado"}}selected{{/ifEquals}}>Arquivado</option>
         </select>
       </form>
     </li>

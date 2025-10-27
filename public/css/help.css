@@ -1,0 +1,19 @@
+/* Ajuda - estilos específicos da página */
+.help-page{display:block;padding:12px 0 28px 0}
+.help-hero{margin:6px 0 18px 0}
+.help-hero h1{margin:0 0 6px 0;font-size:28px;line-height:1.2;color:#0f172a}
+.help-hero p{margin:0;color:var(--muted)}
+
+.subguias-nav{margin:10px 0 16px 0}
+.subguias-list{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-start;padding:0;margin:0}
+.subguias-list .pill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;border:1px solid rgba(15,23,42,.12);background:#ffffff;color:#0f172a;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+.subguias-list .pill:hover{background:#f1f5f9;border-color:rgba(15,23,42,.18)}
+
+.help-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:8px}
+@media (min-width:768px){.help-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1080px){.help-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.help-card{transition:transform .15s ease, box-shadow .2s ease}
+.help-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.help-card h2{margin:0 0 8px 0;color:#fff}
+.help-card p{margin:0}
+
