@@ -8,12 +8,12 @@
             </div>
 
             <div class="form-group">
-                <label for="email">E-mail</label>
+                <label for="email">E-mail: <span style="color: red;">*</span></label>
                 <input id="email" name="email" type="email" class="form-control" required aria-describedby="emailHelp" />
                 <div id="emailError" class="invalid-feedback" style="display:none;">Por favor, informe um e-mail v�lido.</div>
             </div>
             <div class="form-group">
-                <label for="password">Senha:</label>
+                <label for="password">Senha: <span style="color: red;">*</span></label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" placeholder="Digite sua senha" required>
                     <button type="button" id="togglePassword" class="toggle-visibility">Mostrar</button>
@@ -21,7 +21,7 @@
             </div>
 
             <div class="form-group">
-                <label for="confirm_password">Confirme a Senha:</label>
+                <label for="confirm_password">Confirme a Senha: <span style="color: red;">*</span></label>
                 <div class="password-wrapper">
                     <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirme sua senha" required>
                     <button type="button" id="toggleConfirmPassword" class="toggle-visibility">Mostrar</button>
@@ -53,14 +53,16 @@
             </div>
 
             <!-- Campos de Telefone -->
-            <div class="form-group">
-                <label for="phone1">Contato:</label>
-                <input type="text" id="phone1" name="phone1" inputmode="tel" pattern="[0-9]{10,11}" maxlength="11" oninput="onlyDigits(this)">
-                <select id="phone1_type" name="phone1_type" required>
-                    <option value="" disabled selected>Tipo</option>
-                    <option value="celular">Celular</option>
-                    <option value="telefone">Telefone</option>
-                </select>
+            <div class="form-group contact-field">
+                <label for="phone1">Contato: <span style="color: red;">*</span></label>
+                <div class="field-inline">
+                    <input type="text" id="phone1" name="phone1" inputmode="tel" pattern="[0-9]{10,11}" maxlength="11" oninput="onlyDigits(this)">
+                    <select id="phone1_type" name="phone1_type" required>
+                        <option value="" disabled selected>Tipo </option>
+                        <option value="celular">Celular</option>
+                        <option value="telefone">Telefone</option>
+                    </select>
+                </div>
             </div>
           
 
