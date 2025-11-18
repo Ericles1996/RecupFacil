@@ -52,17 +52,31 @@
             body: payload.toString(),
             credentials: 'same-origin'
           });
+          let data = {};
+          try { data = await resp.json(); } catch(_) {}
           if (resp.status === 401) {
-            let data = {};
-            try { data = await resp.json(); } catch(_) {}
-            const msg = (data && data.message) ? data.message : 'E-mail ou senha inv�lidos.';
+            const msg = (data && data.message) ? data.message : 'E-mail ou senha inv���lidos.';
             alertBox.textContent = msg;
             alertBox.style.display = 'block';
             return;
           }
           if (resp.ok) {
+            const questionnaireUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfTPhCesUsDtoOryoqYsRzmf2uos3uCqpHl0wJg2a13npWH5g/viewform?usp=preview';
+            const promptFn = window.showQuestionnairePrompt;
+            let wantsSurvey = false;
+            if (typeof promptFn === 'function') {
+              wantsSurvey = await promptFn('Responder questionario agora?');
+            } else {
+              wantsSurvey = window.confirm('Responder questionario agora?');
+            }
+            if (wantsSurvey) {
+              window.location.href = questionnaireUrl;
+              return;
+            }
             if (resp.redirected && resp.url) {
               window.location.href = resp.url;
+            } else if (data && data.redirectUrl) {
+              window.location.href = data.redirectUrl;
             } else {
               window.location.href = '/home';
             }
@@ -71,7 +85,7 @@
           alertBox.textContent = 'Erro no servidor. Tente novamente.';
           alertBox.style.display = 'block';
         } catch(err) {
-          alertBox.textContent = 'Falha de rede. Verifique sua conex�o.';
+          alertBox.textContent = 'Falha de rede. Verifique sua conexão.';
           alertBox.style.display = 'block';
         }
       });
@@ -93,5 +107,4 @@
     })();
     </script>
     <script src="js/script.js"></script> 
-
 

@@ -1,4 +1,4 @@
-// controllers/userController.js
+﻿// controllers/userController.js
 const bcrypt = require('bcryptjs');
 const Usuario = require('../models/Usuario');
 const Telefone = require('../models/Telefone');
@@ -8,15 +8,8 @@ const path = require('path');
 const cloudinary = require('../config/cloudinary');
 const { Op } = require('sequelize');
 
-const { Objeto, Eletronico, Veiculo,  ImagensObjeto} = require('../models');
+const { Objeto, Eletronico, Veiculo,  ImagensObjeto} = require('../models'); 
 
-// Garante que o modelo Usuario aceite CPF nulo mesmo que tenha sido carregado antes da alteração
-if (Usuario && Usuario.rawAttributes && Usuario.rawAttributes.cpf && Usuario.rawAttributes.cpf.allowNull !== true) {
-    Usuario.rawAttributes.cpf.allowNull = true;
-    if (typeof Usuario.refreshAttributes === 'function') {
-        Usuario.refreshAttributes();
-    }
-}
 
 //==========================================
 //      auditoria de registros
@@ -45,33 +38,6 @@ async function registrarAuditoria(id_usuario, tipo_acao, detalhes, resultado) {
 const cadastrarUsuario = async (req, res) => {
     try {
         const { username, cpf, email, password, confirm_password, gender, birthdate, phone1, phone1_type, phone2, phone2_type, state, city, neighborhood, street, number, cep, permission_level, status } = req.body;
-        const sanitizeInput = (value) => {
-            if (typeof value !== 'string') return null;
-            const trimmed = value.trim();
-            return trimmed === '' ? null : trimmed;
-        };
-
-        const sanitizedCpf = sanitizeInput(cpf);
-        const addressData = {
-            estado: sanitizeInput(state),
-            cidade: sanitizeInput(city),
-            bairro: sanitizeInput(neighborhood),
-            rua: sanitizeInput(street),
-            numero: sanitizeInput(number),
-            cep: sanitizeInput(cep)
-        };
-        const hasAddressData = Object.values(addressData).some((value) => value !== null);
-        const missingAddressInfo = hasAddressData && Object.values(addressData).some((value) => value === null);
-
-        if (missingAddressInfo) {
-            return res.send(`
-                <script>
-                    alert('Para cadastrar o endere?o, preencha todos os campos ou deixe-os em branco.');
-                    window.history.back();
-                </script>
-            `);
-        }
-
 
         if (password !== confirm_password) {
             return res.send(`
@@ -95,7 +61,7 @@ const cadastrarUsuario = async (req, res) => {
         if (existente) {
             return res.send(`
                 <script>
-                    alert('Este e-mail j� est� cadastrado. Use outro e-mail.');
+                    alert('Este e-mail já está cadastrado. Use outro e-mail.');
                     window.history.back();
                 </script>
             `);
@@ -103,7 +69,7 @@ const cadastrarUsuario = async (req, res) => {
 
         const usuario = await Usuario.create({
             nome: username,
-            cpf: sanitizedCpf,
+            cpf: cpf,
             email: email,
             senha: hashedPassword,
             sexo: gender,
@@ -111,7 +77,6 @@ const cadastrarUsuario = async (req, res) => {
             nivel: permission_level,
             status: usuarioStatus // Define o status como 'ativo' automaticamente
         });
-
 
         // Inserir os telefones na tabela TELEFONE
         if (phone1) {
@@ -130,21 +95,18 @@ const cadastrarUsuario = async (req, res) => {
             });
         }
 
-        // Inserir o endere?o na tabela ENDERECO quando informado
-        if (hasAddressData) {
-            await Endereco.create({
-                id_usuario: usuario.id,
-                numero: addressData.numero,
-                cidade: addressData.cidade,
-                bairro: addressData.bairro,
-                cep: addressData.cep,
-                rua: addressData.rua,
-                estado: addressData.estado
-            });
-        }
+        // Inserir o endereço na tabela ENDERECO
+        await Endereco.create({
+            id_usuario: usuario.id,
+            numero: number,
+            cidade: city,
+            bairro: neighborhood,
+            cep: cep,
+            rua: street,
+            estado: state
+        });
 
-
-    // Responder com uma mensagem de alerta e redirecionar para a p�gina de login
+    // Responder com uma mensagem de alerta e redirecionar para a página de login
 
     const nivel = req.session.nivel;
     if (nivel === '2') {
@@ -164,7 +126,7 @@ const cadastrarUsuario = async (req, res) => {
     }
 } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Erro ao cadastrar Usuário' });
+    res.status(500).json({ message: 'Erro ao cadastrar usuário' });
 }
 };
 
@@ -198,7 +160,7 @@ const getDashboard = async (req, res) => {
 
         const taxaRecuperacao = totalObjetos > 0 ? Math.round((totalRecuperados / totalObjetos) * 100) : 0;
 
-        // �ltimos 10 objetos recentes (proxy por ID desc)
+        // Últimos 10 objetos recentes (proxy por ID desc)
         const recentes = await Objeto.findAll({
             where,
             order: [['id', 'DESC']],
@@ -209,7 +171,7 @@ const getDashboard = async (req, res) => {
             ]
         });
 
-        // Mapear endere�os dos Usuários para localização aproximada
+        // Mapear endereços dos usuários para localização aproximada
         const usuarioIds = [...new Set(recentes.map(o => o.usuario ? o.usuario.id : null).filter(Boolean))];
         let enderecosPorUsuario = {};
         if (usuarioIds.length > 0) {
@@ -241,6 +203,10 @@ const getDashboard = async (req, res) => {
             };
         });
 
+        // Tendência mensal (placeholder até termos data de criação)
+        // Como os modelos não possuem timestamps, preenchemos com zeros
+        // e rótulos dos últimos 12 meses. Quando houver auditoria de cadastro
+        // poderemos substituir por contagem real.
         const labels = [];
         const dadosMensais = [];
         for (let i = 11; i >= 0; i--) {
@@ -287,7 +253,7 @@ const listarUsuarios = async (req, res) => {
             }]
         });
         
-        // Converte as inst�ncias em objetos simples
+        // Converte as instâncias em objetos simples
         const usuariosPlain = usuarios.map(usuario => usuario.get({ plain: true }));
         console.log('Usuários encontrados:', usuariosPlain); 
 
@@ -304,7 +270,7 @@ const listarUsuarios = async (req, res) => {
 //============================================================
 const excluirUsuario = async (req, res) => {
     const { id } = req.params; // ID do Usuário a ser excluído
-    const idAdmin = req.session.userId; // ID do administrador que realizou a ação
+    const idAdmin = req.session.userId; // ID do administrador que realizou a aÃ§Ã£o
     const usuario = await Usuario.findByPk(id);
 
     try {
@@ -315,7 +281,7 @@ const excluirUsuario = async (req, res) => {
             // Exclui as imagens associadas ao objeto
             await ImagensObjeto.destroy({ where: { id_objeto: objeto.id } });
 
-            // Exclui os registros associados às categorias específicas
+            // Exclui os registros associados Ã s categorias especÃ­ficas
             await Veiculo.destroy({ where: { id_objeto: objeto.id } });
             await Eletronico.destroy({ where: { id_objeto: objeto.id } });
         }
@@ -326,7 +292,7 @@ const excluirUsuario = async (req, res) => {
         // Exclui os telefones associados ao Usuário
         await Telefone.destroy({ where: { id_usuario: id } });
 
-        // Exclui o endere�o associado ao Usuário
+        // Exclui o endereço associado ao Usuário
         await Endereco.destroy({ where: { id_usuario: id } });
 
         // Exclui o Usuário
@@ -370,12 +336,12 @@ const excluirUsuario = async (req, res) => {
 const editarNivelPermissao = async (req, res) => {
     const { permission_level, status } = req.body; 
     const user_id = req.params.id; 
-    const idAdmin = req.session.userId; // ID do administrador que realizou a ação
+    const idAdmin = req.session.userId; // ID do administrador que realizou a aÃ§Ã£o
 
     try {
-        // Verificar se o ID do administrador está disponível
+        // Verificar se o ID do administrador estÃ¡ disponÃ­vel
         if (!idAdmin) {
-            console.error('ID do administrador não definido. Auditoria não será registrada.');
+            console.error('ID do administrador não definido. Auditoria não serÃ¡ registrada.');
             return res.status(500).json({ message: 'Erro interno.' });
         }
 
@@ -386,14 +352,14 @@ const editarNivelPermissao = async (req, res) => {
             await registrarAuditoria(
                 idAdmin,
                 'edição',
-                `Tentativa de editar o nível de permissão ou status do Usuário com ID ${user_id}, mas o Usuário não foi encontrado.`,
+                `Tentativa de editar o nÃ­vel de permissÃ£o ou status do Usuário com ID ${user_id}, mas o Usuário não foi encontrado.`,
                 'Falha'
             );
 
             return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
-        // Atualizar o nível de permissão e o status do Usuário
+        // Atualizar o nÃ­vel de permissÃ£o e o status do Usuário
         await Usuario.update(
             { 
                 nivel: permission_level, 
@@ -406,26 +372,26 @@ const editarNivelPermissao = async (req, res) => {
         await registrarAuditoria(
             idAdmin,
             'edição',
-            `Nível de permissão ou status do Usuário com ID: ${user_id} nome: ${usuario.nome} foram atualizados. Novo nível: ${permission_level}, Novo status: ${status}.`,
+            `NÃ­vel de permissÃ£o ou status do Usuário com ID: ${user_id} nome: ${usuario.nome} foram atualizados. Novo nÃ­vel: ${permission_level}, Novo status: ${status}.`,
             'Sucesso'
         );
 
-        // Redirecionar de volta para a p�gina de gerenciamento de Usuários
+        // Redirecionar de volta para a página de gerenciamento de Usuários
         res.redirect('/gerenciarusuario');
     } catch (error) {
-        console.error('Erro ao atualizar o nível de permissão:', error);
+        console.error('Erro ao atualizar o nÃ­vel de permissÃ£o:', error);
 
         // Registrar falha na auditoria
         if (idAdmin) {
             await registrarAuditoria(
                 idAdmin,
                 'edição',
-                `Tentativa de atualizar o nível de permissão ou status do Usuário com ID ${user_id}.`,
+                `Tentativa de atualizar o nÃ­vel de permissÃ£o ou status do Usuário com ID ${user_id}.`,
                 'Falha'
             );
         }
 
-        res.status(500).json({ message: 'Erro ao atualizar o nível de permissão.' });
+        res.status(500).json({ message: 'Erro ao atualizar o nÃ­vel de permissÃ£o.' });
     }
 };
 
@@ -481,7 +447,7 @@ const cadastrarObjeto = async (req, res) => {
             objectType
         } = req.body;
 
-        // Obter o id do Usuário da sessão
+        // Obter o id do Usuário da sessÃ£o
         const userId = req.session.userId;
 
         // Busca o Usuário logado para verificar o status
@@ -495,17 +461,17 @@ const cadastrarObjeto = async (req, res) => {
         console.log("ID do Usuário:", userId);
         console.log("Dados enviados:", req.body);
 
-        // Validação: nome do objeto � obrigat�rio
+        // Validação: nome do objeto é obrigatório
         if (!objectName || !objectName.trim()) {
             return res.send(`
                 <script>
-                    alert('O nome do objeto � obrigat�rio.');
+                    alert('O nome do objeto é obrigatório.');
                     window.history.back();
                 </script>
             `);
         }
 
-        // Informa��es adicionais agora são livres, sem prefixo de nome
+        // Informações adicionais agora são livres, sem prefixo de nome
         const composedAdditional = additionalInfo && additionalInfo.trim() ? additionalInfo.trim() : null;
 
         // Cria o objeto na tabela OBJETO, incluindo o id_usuario
@@ -532,7 +498,7 @@ const cadastrarObjeto = async (req, res) => {
             }
         }
 
-        // Verifica a categoria e insere dados nas tabelas específicas
+        // Verifica a categoria e insere dados nas tabelas especÃ­ficas
         if (category === 'eletronico') {
             await Eletronico.create({
                 id_objeto: novoObjeto.id,
@@ -566,205 +532,18 @@ const cadastrarObjeto = async (req, res) => {
         }
 
         const nivel = req.session.nivel;
-        const questionnaireUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSfTPhCesUsDtoOryoqYsRzmf2uos3uCqpHl0wJg2a13npWH5g/viewform?usp=preview';
         if (nivel === '2') {
             res.send(`
                 <script>
                     alert('Objeto cadastrado com sucesso');
-                    (function(){
-                        var question = 'Responder questionario agora?';
-                        if (typeof window.showQuestionnairePrompt !== 'function') {
-                            window.showQuestionnairePrompt = function(msg){
-                                return new Promise(function(resolve){
-                                    var questionText = msg || question;
-                                    var fallback = function(result){ resolve(!!result); };
-                                    try {
-                                        var body = document.body || document.getElementsByTagName('body')[0];
-                                        if (!body) {
-                                            body = document.createElement('body');
-                                            if (document.documentElement) {
-                                                document.documentElement.appendChild(body);
-                                            }
-                                        }
-                                        var overlay = document.createElement('div');
-                                        overlay.style.position = 'fixed';
-                                        overlay.style.top = '0';
-                                        overlay.style.left = '0';
-                                        overlay.style.width = '100%';
-                                        overlay.style.height = '100%';
-                                        overlay.style.backgroundColor = 'rgba(0,0,0,0.6)';
-                                        overlay.style.display = 'flex';
-                                        overlay.style.alignItems = 'center';
-                                        overlay.style.justifyContent = 'center';
-                                        overlay.style.zIndex = '9999';
-                                        var modal = document.createElement('div');
-                                        modal.style.background = '#fff';
-                                        modal.style.padding = '24px 28px';
-                                        modal.style.borderRadius = '12px';
-                                        modal.style.textAlign = 'center';
-                                        modal.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
-                                        modal.style.maxWidth = '360px';
-                                        modal.style.width = '90%';
-                                        var text = document.createElement('p');
-                                        text.textContent = questionText;
-                                        text.style.marginBottom = '20px';
-                                        text.style.fontSize = '1.05rem';
-                                        var buttons = document.createElement('div');
-                                        buttons.style.display = 'flex';
-                                        buttons.style.gap = '12px';
-                                        buttons.style.justifyContent = 'center';
-                                        function create(label, primary){
-                                            var b = document.createElement('button');
-                                            b.textContent = label;
-                                            b.style.minWidth = '80px';
-                                            b.style.padding = '10px 16px';
-                                            b.style.borderRadius = '8px';
-                                            b.style.border = 'none';
-                                            b.style.cursor = 'pointer';
-                                            b.style.fontWeight = '600';
-                                            b.style.fontSize = '0.95rem';
-                                            b.style.background = primary ? '#007bff' : '#f0f0f0';
-                                            b.style.color = primary ? '#fff' : '#333';
-                                            return b;
-                                        }
-                                        function cleanup(val){
-                                            document.removeEventListener('keydown', keyHandler);
-                       	                    if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-                                            resolve(val);
-                                        }
-                                        function keyHandler(evt){
-                                            if (evt.key === 'Escape') { evt.preventDefault(); cleanup(false); }
-                                        }
-                                        var yesBtn = create('Sim', true);
-                                        var noBtn = create('N\u00e3o', false);
-                                        yesBtn.addEventListener('click', function(){ cleanup(true); });
-                                        noBtn.addEventListener('click', function(){ cleanup(false); });
-                                        buttons.appendChild(noBtn);
-                                        buttons.appendChild(yesBtn);
-                                        modal.appendChild(text);
-                                        modal.appendChild(buttons);
-                                        overlay.appendChild(modal);
-                                        body.appendChild(overlay);
-                                        document.addEventListener('keydown', keyHandler);
-                                        setTimeout(function(){ (yesBtn || noBtn).focus(); }, 0);
-                                    } catch (err) {
-                                        console.error('Popup questionario falhou', err);
-                                        fallback(window.confirm(questionText));
-                                    }
-                                });
-                            };
-                        }
-                        var promptFn = window.showQuestionnairePrompt;
-                        var nextUrl = '/gerenciarobjeto';
-                        var handleResult = function(goQuestionnaire){
-                            window.location.href = goQuestionnaire ? '${questionnaireUrl}' : nextUrl;
-                        };
-                        if (typeof promptFn === 'function') {
-                            promptFn(question).then(handleResult);
-                        } else {
-                            handleResult(window.confirm(question));
-                        }
-                    })();
+                    window.location.href = '/gerenciarobjeto';
                 </script>
             `);
         } else {
             res.send(`
                 <script>
                     alert('Objeto cadastrado com sucesso');
-                    (function(){
-                        var question = 'Responder questionario agora?';
-                        if (typeof window.showQuestionnairePrompt !== 'function') {
-                            window.showQuestionnairePrompt = function(msg){
-                                return new Promise(function(resolve){
-                                    var questionText = msg || question;
-                                    var fallback = function(result){ resolve(!!result); };
-                                    try {
-                                        var body = document.body || document.getElementsByTagName('body')[0];
-                                        if (!body) {
-                                            body = document.createElement('body');
-                                            if (document.documentElement) {
-                                                document.documentElement.appendChild(body);
-                                            }
-                                        }
-                                        var overlay = document.createElement('div');
-                                        overlay.style.position = 'fixed';
-                                        overlay.style.top = '0';
-                                        overlay.style.left = '0';
-                                        overlay.style.width = '100%';
-                                        overlay.style.height = '100%';
-                                        overlay.style.backgroundColor = 'rgba(0,0,0,0.6)';
-                                        overlay.style.display = 'flex';
-                                        overlay.style.alignItems = 'center';
-                                        overlay.style.justifyContent = 'center';
-                                        overlay.style.zIndex = '9999';
-                                        var modal = document.createElement('div');
-                                        modal.style.background = '#fff';
-                                        modal.style.padding = '24px 28px';
-                                        modal.style.borderRadius = '12px';
-                                        modal.style.textAlign = 'center';
-                                        modal.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
-                                        modal.style.maxWidth = '360px';
-                                        modal.style.width = '90%';
-                                        var text = document.createElement('p');
-                                        text.textContent = questionText;
-                                        text.style.marginBottom = '20px';
-                                        text.style.fontSize = '1.05rem';
-                                        var buttons = document.createElement('div');
-                                        buttons.style.display = 'flex';
-                                        buttons.style.gap = '12px';
-                                        buttons.style.justifyContent = 'center';
-                                        function create(label, primary){
-                                            var b = document.createElement('button');
-                                            b.textContent = label;
-                                            b.style.minWidth = '80px';
-                                            b.style.padding = '10px 16px';
-                                            b.style.borderRadius = '8px';
-                                            b.style.border = 'none';
-                                            b.style.cursor = 'pointer';
-                                            b.style.fontWeight = '600';
-                                            b.style.fontSize = '0.95rem';
-                                            b.style.background = primary ? '#007bff' : '#f0f0f0';
-                                            b.style.color = primary ? '#fff' : '#333';
-                                            return b;
-                                        }
-                                        function cleanup(val){
-                                            document.removeEventListener('keydown', keyHandler);
-                                            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-                                            resolve(val);
-                                        }
-                                        function keyHandler(evt){
-                                            if (evt.key === 'Escape') { evt.preventDefault(); cleanup(false); }
-                                        }
-                                        var yesBtn = create('Sim', true);
-                                        var noBtn = create('N\u00e3o', false);
-                                        yesBtn.addEventListener('click', function(){ cleanup(true); });
-                                        noBtn.addEventListener('click', function(){ cleanup(false); });
-                                        buttons.appendChild(noBtn);
-                                        buttons.appendChild(yesBtn);
-                                        modal.appendChild(text);
-                                        modal.appendChild(buttons);
-                                        overlay.appendChild(modal);
-                                        body.appendChild(overlay);
-                                        document.addEventListener('keydown', keyHandler);
-                                        setTimeout(function(){ (yesBtn || noBtn).focus(); }, 0);
-                                    } catch (err) {
-                                        console.error('Popup questionario falhou', err);
-                                        fallback(window.confirm(questionText));
-                                    }
-                                });
-                            };
-                        }
-                        var promptFn = window.showQuestionnairePrompt;
-                        var nextUrl = '/meusobjetos';
-                        var handleResult = function(goQuestionnaire){
-                            window.location.href = goQuestionnaire ? '${questionnaireUrl}' : nextUrl;
-                        };
-                        if (typeof promptFn === 'function') {
-                            promptFn(question).then(handleResult);
-                        } else {
-                            handleResult(window.confirm(question));
-                        }
-                    })();
+                    window.location.href = '/meusobjetos';
                 </script>
             `);
         }
@@ -780,13 +559,13 @@ const cadastrarObjeto = async (req, res) => {
 
 const editarObjeto = async (req, res) => {
     const objetoId = req.params.id;
-    const idUsuario = req.session.userId; // ID do Usuário que realizou a ação
+    const idUsuario = req.session.userId; // ID do Usuário que realizou a aÃ§Ã£o
     const nivel = req.session.nivel;
 
     try {
-        // Verificar se o ID do Usuário está disponível
+        // Verificar se o ID do Usuário estÃ¡ disponÃ­vel
         if (!idUsuario) {
-            console.error('ID do Usuário não definido. Auditoria não será registrada.');
+            console.error('ID do Usuário não definido. Auditoria não serÃ¡ registrada.');
             return res.status(500).json({ error: 'Erro interno.' });
         }
 
@@ -808,8 +587,8 @@ const editarObjeto = async (req, res) => {
             return res.status(404).json({ error: 'Objeto não encontrado.' });
         }
 
-        // Buscar o Usuário responsável pelo objeto
-        const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' é a chave estrangeira
+        // Buscar o Usuário responsÃ¡vel pelo objeto
+        const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' Ã© a chave estrangeira
         
         const {
             reward, crimeType, color, crimeDetails, additionalInfo, objectName, status,
@@ -817,19 +596,21 @@ const editarObjeto = async (req, res) => {
             plate, chassis, vehicleType, brandEletronico, objectType
         } = req.body;
 
+        // Informações adicionais agora são livres, sem prefixo de nome
+        // Validação: nome do objeto é obrigatório
         if (!objectName || !objectName.trim()) {
             return res.send(`
                 <script>
-                    alert('O nome do objeto � obrigat�rio.');
+                    alert('O nome do objeto é obrigatório.');
                     window.history.back();
                 </script>
             `);
         }
 
-        
+        // Informações adicionais agora são livres, sem prefixo de nome
         const composedAdditional = additionalInfo && additionalInfo.trim() ? additionalInfo.trim() : null;
 
-
+        // Atualizar dados do objeto principal
         await objeto.update({
             recompensa: reward,
             crime: crimeType,
@@ -850,7 +631,7 @@ const editarObjeto = async (req, res) => {
             'Sucesso'
         );
 
-        // Verifica se há arquivos de imagem recebidos
+        // Verifica se hÃ¡ arquivos de imagem recebidos
         if (req.files && req.files.length > 0) {
             const uploadedUrls = [];
             for (const file of req.files) {
@@ -880,7 +661,7 @@ const editarObjeto = async (req, res) => {
                     cod_identificador: identifier,
                     tipo: objectType
                 });
-                console.log('Dados atualizados no Eletrônico com sucesso.');
+                console.log('Dados atualizados no EletrÃ´nico com sucesso.');
             } else {
                 await Eletronico.create({
                     id_objeto: objeto.id,
@@ -889,7 +670,7 @@ const editarObjeto = async (req, res) => {
                     cod_identificador: identifier,
                     tipo: objectType
                 });
-                console.log('Novo Eletrônico criado com sucesso.');
+                console.log('Novo EletrÃ´nico criado com sucesso.');
             }
         } else if (category === 'veiculo') {
             let veiculo = await Veiculo.findOne({ where: { id_objeto: objeto.id } });
@@ -901,7 +682,7 @@ const editarObjeto = async (req, res) => {
                     chassi: chassis,
                     tipo: vehicleType
                 });
-                console.log('Dados atualizados no Veículo com sucesso.');
+                console.log('Dados atualizados no VeÃ­culo com sucesso.');
             } else {
                 await Veiculo.create({
                     id_objeto: objeto.id,
@@ -911,10 +692,10 @@ const editarObjeto = async (req, res) => {
                     chassi: chassis,
                     tipo: vehicleType
                 });
-                console.log('Novo Veículo criado com sucesso.');
+                console.log('Novo VeÃ­culo criado com sucesso.');
             }
         } else {
-            console.warn('Categoria não reconhecida ou não aplicável para atualização.');
+            console.warn('Categoria não reconhecida ou não aplicÃ¡vel para atualização.');
         }
 
         // Redirecionar com mensagem de sucesso
@@ -968,7 +749,7 @@ const excluirImagem = async (req, res) => {
         if (resultado) {
             res.send(`
                 <script>
-                    alert('Imagem excluída com sucesso');
+                    alert('Imagem excluÃ­da com sucesso');
                     window.location.href = '/meusobjetos';
                 </script>
             `);
@@ -984,7 +765,7 @@ const excluirImagem = async (req, res) => {
 
 
 //============================================================
-//              função para login e logout do Usuário
+//              funÃ§Ã£o para login e logout do Usuário
 //============================================================
 
 // Controller de login
@@ -996,27 +777,27 @@ const loginController = async (req, res) => {
         const usuario = await Usuario.findOne({ where: { email: username } });
         
         if (!usuario) {
-            return res.status(401).json({ message: 'Email ou senha inv�lidos.' });
+            return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
         // Comparar a senha preenchida com a senha criptografada
         const isPasswordValid = await bcrypt.compare(password, usuario.senha);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Email ou senha inv�lidos.' });
+            return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
-        // Se a autenticação for bem-sucedida, inicie a sessão
+        // Se a autenticaÃ§Ã£o for bem-sucedida, inicie a sessÃ£o
         if (!req.session) {
             console.error('Sesão não inicializada');
-            return res.status(500).json({ message: 'Erro no servidor. Sessão não inicializada.' });
+            return res.status(500).json({ message: 'Erro no servidor. SessÃ£o não inicializada.' });
         }
 
-        // Armazena o ID do Usuário e o nível na sessão
+        // Armazena o ID do Usuário e o nÃ­vel na sessÃ£o
         req.session.userId = usuario.id; 
         req.session.nivel = usuario.nivel;
 
-        console.log('Sessão após login:', req.session);
+        console.log('SessÃ£o apÃ³s login:', req.session);
         req.session.nomeUsuario = usuario.nome;
         req.session.save((err) => {
             if (err) { console.error('Erro ao salvar sessão:', err); }
@@ -1033,27 +814,27 @@ const loginController = async (req, res) => {
 
 
 //============================================================
-//                  função de logout do Usuário
+//                  funÃ§Ã£o de logout do Usuário
 //============================================================
 
 const logoutController = (req, res) => {
     req.session.destroy(err => {
         if (err) {
-            console.error('Erro ao encerrar sessão:', err);
-            return res.status(500).json({ message: 'Erro ao encerrar sessão.' });
+            console.error('Erro ao encerrar sessÃ£o:', err);
+            return res.status(500).json({ message: 'Erro ao encerrar sessÃ£o.' });
         }
-        res.redirect('/home'); // Redireciona para a p�gina de login
+        res.redirect('/home'); // Redireciona para a página de login
     });
 };
 
 //============================================================
-//           Ajuda: listar v�deos Passo a Passo (Cloudinary)
+//           Ajuda: listar vídeos Passo a Passo (Cloudinary)
 //============================================================
 const getPassoAPassoVideos = async (req, res) => {
     try {
         let resources = [];
         if (cloudinary.search && typeof cloudinary.search.expression === 'function') {
-            const expr = 'resource_type:video AND (folder="recupfacil/videos" OR folder="recupf�cil/videos")';
+            const expr = 'resource_type:video AND (folder="recupfacil/videos" OR folder="recupfácil/videos")';
             const result = await cloudinary.search
                 .expression(expr)
                 .sort_by('public_id','desc')
@@ -1062,7 +843,7 @@ const getPassoAPassoVideos = async (req, res) => {
             resources = (result && result.resources) ? result.resources : [];
         } else {
             const list1 = await cloudinary.api.resources({ type: 'upload', resource_type: 'video', prefix: 'recupfacil/videos/', max_results: 100 }).catch(() => ({ resources: [] }));
-            const list2 = await cloudinary.api.resources({ type: 'upload', resource_type: 'video', prefix: 'recupf�cil/videos/', max_results: 100 }).catch(() => ({ resources: [] }));
+            const list2 = await cloudinary.api.resources({ type: 'upload', resource_type: 'video', prefix: 'recupfácil/videos/', max_results: 100 }).catch(() => ({ resources: [] }));
             const map = new Map();
             [...(list1.resources || []), ...(list2.resources || [])].forEach(r => map.set(r.public_id, r));
             resources = Array.from(map.values());
@@ -1073,20 +854,20 @@ const getPassoAPassoVideos = async (req, res) => {
             const url = r.secure_url || cloudinary.url(publicId, { resource_type: 'video', secure: true });
             const thumb = cloudinary.url(publicId + '.jpg', { resource_type: 'video', secure: true, width: 480, height: 270, crop: 'fill', gravity: 'auto' });
             const baseId = (publicId || '').split('/').pop() || '';
-            // Preferir t�tulo definido no Cloudinary (context.metadata)
+            // Preferir título definido no Cloudinary (context.metadata)
             let tmpName = (r && r.context && r.context.custom && r.context.custom.title) || r.filename || baseId;
-            // Remover token espec�fico (case-insens�vel)
+            // Remover token específico (case-insensível)
             tmpName = String(tmpName).replace(/aoxnc2/gi, '');
-            // Normalizar separadores e espa�os
+            // Normalizar separadores e espaços
             let nameRaw = (tmpName || '').replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
             if (nameRaw) {
-                const hasVowel = /[aeiou���������������]/i;
+                const hasVowel = /[aeiouáéíóúâêîôûàèìòù]/i;
                 const parts = nameRaw.split(' ');
-                // Remover sufixos aleat�rios (sem vogais) e tokens alfanum�ricos (ex.: Hfvhzf, Vzpmnz, T1o93t)
+                // Remover sufixos aleatórios (sem vogais) e tokens alfanuméricos (ex.: Hfvhzf, Vzpmnz, T1o93t)
                 while (parts.length > 1) {
                     const last = parts[parts.length - 1];
                     const hasDigit = /\d/.test(last);
-                    const hasLetter = /[a-zA-Z���������������]/i.test(last);
+                    const hasLetter = /[a-zA-Záéíóúâêîôûàèìòù]/i.test(last);
                     const isAlphaNumMix = hasDigit && /[A-Za-z]/.test(last) && /^[A-Za-z0-9]{3,}$/.test(last);
                     if (!hasVowel.test(last) || isAlphaNumMix) {
                         parts.pop();
@@ -1105,8 +886,8 @@ const getPassoAPassoVideos = async (req, res) => {
 
         return res.render('ajuda/passoapasso', { videos, count: videos.length, activePage: 'ajuda' });
     } catch (error) {
-        console.error('Erro ao listar v�deos Cloudinary:', error);
-        return res.status(500).render('ajuda/passoapasso', { videos: [], count: 0, error: 'Falha ao carregar v�deos.', activePage: 'ajuda' });
+        console.error('Erro ao listar vídeos Cloudinary:', error);
+        return res.status(500).render('ajuda/passoapasso', { videos: [], count: 0, error: 'Falha ao carregar vídeos.', activePage: 'ajuda' });
     }
 };
 
@@ -1153,13 +934,13 @@ const listarObjetosUsuario = async (req, res) => {
 
 const excluirObjeto = async (req, res) => {
     const objetoId = req.params.id;
-    const idUsuario = req.session.userId; // ID do Usuário que realizou a ação
+    const idUsuario = req.session.userId; // ID do Usuário que realizou a aÃ§Ã£o
     const nivel = req.session.nivel;
 
     try {
-        // Verificar se o ID do Usuário está disponível
+        // Verificar se o ID do Usuário estÃ¡ disponÃ­vel
         if (!idUsuario) {
-            console.error('ID do Usuário não definido. Auditoria não será registrada.');
+            console.error('ID do Usuário não definido. Auditoria não serÃ¡ registrada.');
             return res.status(500).json({ message: 'Erro interno.' });
         }
 
@@ -1178,7 +959,7 @@ const excluirObjeto = async (req, res) => {
             return res.status(404).json({ error: 'Objeto não encontrado.' });
         }
 
-        const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' é a chave estrangeira
+        const usuarioResponsavel = await Usuario.findByPk(objeto.id_usuario); // 'id_usuario' Ã© a chave estrangeira
        
 
         // Excluir imagens associadas ao objeto
@@ -1202,7 +983,7 @@ const excluirObjeto = async (req, res) => {
             'Sucesso'
         );
 
-        // Redirecionar para a p�gina correta com mensagem de sucesso
+        // Redirecionar para a página correta com mensagem de sucesso
         if (nivel === '2') {
             res.send(`
                 <script>
@@ -1262,7 +1043,7 @@ const listarObjetosTodos = async (req, res) => {
         const prevPage = hasPrev ? page - 1 : 1;
         const nextPage = hasNext ? page + 1 : totalPages;
 
-        // Ajuste opcional de path caso necess�rio (img1 j� armazena o caminho completo)
+        // Ajuste opcional de path caso necessário (img1 já armazena o caminho completo)
         rows.forEach(objeto => {
             if (objeto.imagens && objeto.imagens.length > 0) {
                 objeto.imagens.forEach(imagem => {
@@ -1408,7 +1189,7 @@ const buscarObjetosPorStatus = async (status, usuarioId) => {
 
         const statusValidos = ['todos', 'Em andamento', 'Recuperado', 'Perdido', 'Arquivado'];
         if (!statusValidos.includes(status)) {
-            throw new Error('Status inválido.');
+            throw new Error('Status invÃ¡lido.');
         }
 
         let whereClause = { id_usuario: usuarioId }; // Filtra pelos objetos do Usuário
@@ -1417,8 +1198,8 @@ const buscarObjetosPorStatus = async (status, usuarioId) => {
             whereClause.status = status; // Adiciona o filtro de status se não for 'todos'
         }
 
-        // Log da Cl�usula where antes da consulta
-        console.log('Cl�usula WHERE:', whereClause);
+        // Log da Cláusula where antes da consulta
+        console.log('Cláusula WHERE:', whereClause);
 
         // Busca os objetos com base no filtro
         const objetos = await Objeto.findAll({
@@ -1456,7 +1237,7 @@ const CarregarDadosUsuario = async (req, res) => {
 
         console.log('Dados do Usuário:', usuario.toJSON());
         console.log('Telefones:', usuario.Telefones);
-        console.log('endere�os:', usuario.Enderecos);
+        console.log('endereços:', usuario.Enderecos);
 
         if (!usuario) {
             return res.status(404).json({ message: 'Usuário não encontrado' });
@@ -1470,14 +1251,14 @@ const CarregarDadosUsuario = async (req, res) => {
 };
 
 //====================================================
-// carregar dados do usuario para edição / s�bado
+// carregar dados do usuario para edição / sábado
 //===================================================
 
 const carregarDadosUsuarioParaEdicao = async (req, res) => {
     const userId = req.params.id; 
 
     try {
-        // Busca o Usuário no banco de dados, incluindo telefones e endere�os
+        // Busca o Usuário no banco de dados, incluindo telefones e endereços
         const usuario = await Usuario.findByPk(userId, {
             include: [
                 {
@@ -1496,7 +1277,7 @@ const carregarDadosUsuarioParaEdicao = async (req, res) => {
             return res.status(404).render('meusdados', { message: 'Usuário não encontrado.' });
         }
 
-        // Renderiza a view de edição com os dados do Usuário, telefones e endere�os
+        // Renderiza a view de edição com os dados do Usuário, telefones e endereços
         res.render('formularios/editarusuario', { 
             usuario,
             layout: 'formularios'
@@ -1509,14 +1290,12 @@ const carregarDadosUsuarioParaEdicao = async (req, res) => {
 
 
 //==========================================================================
-//   atualizar dados do usuario no banco / s�bado
+//   atualizar dados do usuario no banco / sábado
 //==========================================================================
 
 const atualizarUsuario = async (req, res) => {
     const user_id = req.params.id;
     const { nome, email, cpf, sexo, data_nascimento, nivel, status } = req.body;
-    const sanitizedCpf = (cpf && cpf.trim() !== '') ? cpf : null;
-
 
     try {
         // Verifica se o Usuário existe
@@ -1530,7 +1309,7 @@ const atualizarUsuario = async (req, res) => {
             {
                 nome,
                 email,
-                cpf: sanitizedCpf,
+                cpf,
                 sexo,
                 data_nascimento,
                 nivel,
@@ -1590,14 +1369,14 @@ const enderecosPromises = enderecoKeys.map(key => {
     const estado = req.body[`estado_${enderecoId}`]; 
 
     // Adiciona logs para depuração
-    console.log(`Atualizando endere�o ID ${enderecoId}:`, { rua, numero, bairro, cidade, estado });
+    console.log(`Atualizando endereço ID ${enderecoId}:`, { rua, numero, bairro, cidade, estado });
 
-    // Atualiza o endere�o
+    // Atualiza o endereço
     return Endereco.update(
         { rua, numero, bairro, cidade, estado },
         { where: { id: enderecoId } } // Atualiza a linha correspondente na tabela Endereco
     ).catch(error => {
-        console.error(`Erro ao atualizar endere�o ID ${enderecoId}:`, error);
+        console.error(`Erro ao atualizar endereço ID ${enderecoId}:`, error);
         return Promise.resolve();
     });
 });
@@ -1695,7 +1474,7 @@ const buscarObjetos = async (req, res) => {
 //              exibir a auditoria de registros
 //=============================================================
 
-// moment j� importado acima
+// moment já importado acima
 
 async function listarAuditorias(req, res) {
     try {
@@ -1731,12 +1510,12 @@ async function listarAuditorias(req, res) {
 
 async function filtrarAuditorias(req, res) {
     try {
-        // Recebe os parâmetros de data do formul�rio
+        // Recebe os parÃ¢metros de data do formulário
         const { dataInicio, dataFim } = req.query;
 
         // Valida se as datas foram fornecidas
         if (!dataInicio || !dataFim) {
-            return res.status(400).send('Por favor, forne�a as datas de in�cio e fim.');
+            return res.status(400).send('Por favor, forneça as datas de início e fim.');
         }
 
         // Converte as datas para o formato adequado
@@ -1756,7 +1535,7 @@ async function filtrarAuditorias(req, res) {
                     attributes: ['id', 'nome'], // Campos desejados do Usuario
                 },
             ],
-            order: [['data_acao', 'DESC']], // Ordenação pela data da ação (opcional)
+            order: [['data_acao', 'DESC']], // OrdenaÃ§Ã£o pela data da aÃ§Ã£o (opcional)
         });
 
         // Renderiza a view com os registros encontrados

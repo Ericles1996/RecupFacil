@@ -5,6 +5,108 @@ function toggleMenu() {
     menu.classList.toggle('show');
 }
 
+(function(){
+    if (window.showQuestionnairePrompt) { return; }
+    window.showQuestionnairePrompt = function(message){
+        var question = message || 'Responder question\u00e1rio agora?';
+        return new Promise(function(resolve){
+            try {
+                var overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.backgroundColor = 'rgba(0,0,0,0.6)';
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+                overlay.style.zIndex = '9999';
+
+                var modal = document.createElement('div');
+                modal.style.background = '#fff';
+                modal.style.color = '#333';
+                modal.style.borderRadius = '12px';
+                modal.style.padding = '24px 28px';
+                modal.style.maxWidth = '360px';
+                modal.style.width = '90%';
+                modal.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+                modal.style.textAlign = 'center';
+                modal.style.fontFamily = 'inherit';
+
+                var text = document.createElement('p');
+                text.textContent = question;
+                text.style.marginBottom = '20px';
+                text.style.fontSize = '1.05rem';
+
+                var buttons = document.createElement('div');
+                buttons.style.display = 'flex';
+                buttons.style.gap = '12px';
+                buttons.style.justifyContent = 'center';
+
+                function createButton(label, isPrimary){
+                    var btn = document.createElement('button');
+                    btn.textContent = label;
+                    btn.style.minWidth = '80px';
+                    btn.style.padding = '10px 16px';
+                    btn.style.borderRadius = '8px';
+                    btn.style.border = 'none';
+                    btn.style.cursor = 'pointer';
+                    btn.style.fontSize = '0.95rem';
+                    btn.style.fontWeight = '600';
+                    if (isPrimary) {
+                        btn.style.background = '#007bff';
+                        btn.style.color = '#fff';
+                    } else {
+                        btn.style.background = '#f0f0f0';
+                        btn.style.color = '#333';
+                    }
+                    btn.onmouseenter = function(){ btn.style.opacity = '0.9'; };
+                    btn.onmouseleave = function(){ btn.style.opacity = '1'; };
+                    return btn;
+                }
+
+                function cleanup(result){
+                    try {
+                        document.removeEventListener('keydown', keyHandler);
+                        if (overlay && overlay.parentNode) {
+                            overlay.parentNode.removeChild(overlay);
+                        }
+                    } finally {
+                        resolve(result);
+                    }
+                }
+
+                function keyHandler(evt){
+                    if (evt.key === 'Escape') {
+                        evt.preventDefault();
+                        cleanup(false);
+                    }
+                }
+
+                var yesBtn = createButton('Sim', true);
+                var noBtn = createButton('N\u00e3o', false);
+                yesBtn.addEventListener('click', function(){ cleanup(true); });
+                noBtn.addEventListener('click', function(){ cleanup(false); });
+
+                buttons.appendChild(noBtn);
+                buttons.appendChild(yesBtn);
+
+                modal.appendChild(text);
+                modal.appendChild(buttons);
+                overlay.appendChild(modal);
+                document.body.appendChild(overlay);
+                document.addEventListener('keydown', keyHandler);
+                setTimeout(function(){
+                    (noBtn || yesBtn).focus();
+                }, 0);
+            } catch (err) {
+                console.error('Falha ao exibir popup do questionario:', err);
+                resolve(window.confirm(question));
+            }
+        });
+    };
+})();
 document.addEventListener('DOMContentLoaded', function() {
     // Hide Admin menu for non-admin users
     try {
@@ -257,14 +359,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
     const confirmPasswordField = document.getElementById('confirm_password');
 
-    function toggleVisibility(button, field) {
+    function toggleVisibility(event, button, field) {
+        event.preventDefault();
+        event.stopPropagation();
         const isPassword = field.getAttribute('type') === 'password';
         field.setAttribute('type', isPassword ? 'text' : 'password');
-        button.textContent = isPassword ? 'Ocultar' : 'Mostrar'; // Alterna o Ã­cone
+        button.textContent = isPassword ? 'Ocultar' : 'Mostrar'; // Alterna o ícone
     }
 
-    if (togglePassword && passwordField) { togglePassword.addEventListener('click', () => toggleVisibility(event, togglePassword, passwordField)); }
-    if (toggleConfirmPassword && confirmPasswordField) { toggleConfirmPassword.addEventListener('click', () => toggleVisibility(event, toggleConfirmPassword, confirmPasswordField)); }
+    if (togglePassword && passwordField) {
+        togglePassword.addEventListener('click', (event) => toggleVisibility(event, togglePassword, passwordField));
+    }
+    if (toggleConfirmPassword && confirmPasswordField) {
+        toggleConfirmPassword.addEventListener('click', (event) => toggleVisibility(event, toggleConfirmPassword, confirmPasswordField));
+    }
 });
 
 

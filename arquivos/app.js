@@ -1,0 +1,224 @@
+const express = require('express');
+const exphbs = require('express-handlebars');
+const Handlebars = require('handlebars');
+const bodyParser = require('body-parser');
+const path = require('path');
+const session = require('express-session');
+
+
+const routes = require('./routes/index'); 
+const db = require('./config/database');
+const bcrypt = require('bcryptjs');
+const methodOverride = require('method-override');
+const { engine } = require('express-handlebars');
+const { Usuario } = require('./models');
+require('dotenv').config();
+
+
+
+
+
+const app = express();
+
+
+ 
+
+// Garante caminho absoluto para uploads em qualquer ambiente
+app.use('/uploads', express.static(path.join(__dirname, 'public', 'img', 'uploads')));
+
+
+
+app.use(express.urlencoded({ extended: true })); // Para dados de formulários
+app.use(express.json()); // Para JSON
+
+// Definindo o helper eq
+Handlebars.registerHelper('eq', function (a, b) {
+  return a === b, a && b;
+});
+
+Handlebars.registerHelper('ifEquals', function (arg1, arg2, options) {
+  return (arg1 === arg2) ? options.fn(this) : options.inverse(this);
+});
+
+Handlebars.registerHelper('getFileName', function (p) {
+  if (!p || typeof p !== 'string') return '';
+  const normalized = p.replace(/\\/g, '/');
+  return normalized.split('/').pop();
+})
+
+// Retorna a URL correta da imagem (Cloudinary ou local)
+Handlebars.registerHelper('imageSrc', function (p) {
+  try {
+    if (!p) return '';
+    if (typeof p !== 'string') return '';
+    if (/^https?:\/\//i.test(p)) return p; // URL absoluta (Cloudinary)
+    const normalized = p.replace(/\\/g, '/');
+    const base = normalized.split('/').pop();
+    return '/uploads/' + base;
+  } catch (e) { return ''; }
+});
+
+// Serializa valores como JSON seguro para uso em scripts embutidos
+Handlebars.registerHelper('json', function(context) {
+  try {
+    return JSON.stringify(context);
+  } catch (e) {
+    return 'null';
+  }
+});
+
+
+
+
+// Configuração do middleware express-session
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const sequelize = require("./config/database.js"); // seu arquivo de conexão Sequelize
+
+const store = new SequelizeStore({
+  db: sequelize,       // algumas versões aceitam 'sequelize' em vez de 'db'
+  checkExpirationInterval: 15 * 60 * 1000, // opcional: limpeza a cada 15 minutos
+  expiration: 24 * 60 * 60 * 1000 // opcional: expiração da sessão em 1 dia
+});
+
+store.sync(); // importantíssimo: cria tabela de sessões se não existir
+
+app.use(
+  session({
+    secret: "R$#vn8x*2G6z7@X5&8b94NdMswP1Q",
+    store: store,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false }
+  })
+);
+
+
+app.use(express.urlencoded({ extended: true }));
+
+// Middleware para manipular requisições
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+
+// Configurar Handlebars como view engine
+app.engine('handlebars', engine({ // Corrigido aqui
+  defaultLayout: 'main',
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true,
+    allowProtoMethodsByDefault: true
+  }
+}));
+
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
+
+
+
+
+//recupera o nome do usuário para exibir no head
+app.use(async (req, res, next) => {
+  if (req.session.userId) {
+      const usuario = await Usuario.findByPk(req.session.userId);
+      if (usuario) {
+          res.locals.nomeUsuario = usuario.nome; // Armazena o nome do usuário em res.locals
+      }
+  }
+  next();
+});
+
+
+app.use((req, res, next) => {
+  res.locals.nivel = req.session ? req.session.nivel : undefined;
+  next();
+});
+
+
+// garante que o nome do usuario esteja disponível nas views logo após o login
+app.use((req, res, next) => {
+  if (req.session && req.session.nomeUsuario) {
+    res.locals.nomeUsuario = req.session.nomeUsuario;
+  }
+  next();
+});
+
+// Arquivos estáticos
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(methodOverride('_method'));
+// Rotas
+app.use('/', routes);
+
+
+
+// Iniciar o servidor
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
+// Rota de teste para home
+
+
+// Rota para Meus Objetos
+app.get('/meusobjetos', (req, res) => {
+  res.render('meusobjetos', { activePage: 'meusobjetos' });
+});
+
+
+
+// Middleware para logar todas as requisições
+app.use((req, res, next) => {
+  console.log(`Requisição recebida: ${req.method} ${req.url}`);
+  next();
+});
+
+
+//==============================================
+
+// Função para registrar ações no log de auditoria
+const logAudit = async (userId, actionType, details, result) => {
+  await db.query('INSERT INTO audit_log (user_id, action_type, details, result) VALUES (?, ?, ?, ?)', [userId, actionType, details, result]);
+};
+
+// Rota para adicionar um novo registro
+app.post('/add-record', async (req, res) => {
+  const userId = req.body.userId; // ID do usuário que está fazendo a ação
+  const recordDetails = req.body.details; // Detalhes do registro a ser adicionado
+
+  try {
+      // Lógica para adicionar o registro ao banco de dados
+      await db.query('INSERT INTO records (details) VALUES (?)', [recordDetails]);
+
+      // Registrar no log de auditoria
+      await logAudit(userId, 'inclusão', `Adicionado registro: ${recordDetails}`, 'sucesso');
+      res.status(201).send('Registro adicionado com sucesso.');
+  } catch (error) {
+      // Registrar falha no log de auditoria
+      await logAudit(userId, 'inclusão', `Falha ao adicionar registro: ${recordDetails}`, 'falha');
+      res.status(500).send('Erro ao adicionar registro.');
+  }
+});
+
+// Extrai o "Nome do objeto: ..." do campo de info adicionais
+Handlebars.registerHelper('getObjectName', function (s) {
+  try {
+    if (!s || typeof s !== 'string') return '';
+    const lines = s.split(/\r?\n/);
+    const first = (lines[0] || '').trim();
+    const m = first.match(/^Nome do objeto:\s*(.+)$/i);
+    return m ? m[1] : '';
+  } catch (e) { return ''; }
+});
+
+// Remove a linha de "Nome do objeto:" e retorna apenas o restante
+Handlebars.registerHelper('stripObjectName', function (s) {
+  try {
+    if (!s || typeof s !== 'string') return '';
+    const lines = s.split(/\r?\n/);
+    if (lines.length === 0) return '';
+    if (/^Nome do objeto:\s*/i.test((lines[0] || '').trim())) {
+      return lines.slice(1).join('\n');
+    }
+    return s;
+  } catch (e) { return s || ''; }
+});
