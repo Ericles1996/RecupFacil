@@ -996,14 +996,14 @@ const loginController = async (req, res) => {
         const usuario = await Usuario.findOne({ where: { email: username } });
         
         if (!usuario) {
-            return res.status(401).json({ message: 'Email ou senha inv�lidos.' });
+            return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
         // Comparar a senha preenchida com a senha criptografada
         const isPasswordValid = await bcrypt.compare(password, usuario.senha);
 
         if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Email ou senha inv�lidos.' });
+            return res.status(401).json({ message: 'Email ou senha inválidos.' });
         }
 
         // Se a autenticação for bem-sucedida, inicie a sessão
