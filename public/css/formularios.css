@@ -96,3 +96,62 @@ button[type="submit"]:hover,button[type="salvar"]:hover,.btn-primary:hover{backg
 .field-inline select{
   max-width:200px;
 }
+
+.form-section{
+  margin-top:20px;
+  padding:16px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  background:rgba(15,23,42,.4);
+}
+.form-section h3{
+  margin:0 0 12px 0;
+  font-size:1rem;
+  color:#f1f5f9;
+  font-weight:600;
+}
+.address-grid{
+  display:grid;
+  gap:14px;
+  grid-template-columns:minmax(70px,0.7fr) minmax(160px,1.1fr) minmax(160px,1.1fr);
+  align-items:flex-start;
+}
+.address-grid .address-col{
+  margin:0;
+}
+.address-grid .address-span-2{
+  grid-column:span 2;
+}
+.address-grid .address-compact input{
+  text-align:center;
+}
+.address-grid .address-uf input{
+  text-transform:uppercase;
+  text-align:center;
+}
+
+@media(max-width:768px){
+  .address-grid{
+    grid-template-columns:repeat(2,minmax(140px,1fr));
+  }
+  .address-grid .address-span-2{
+    grid-column:span 2;
+  }
+  .address-grid .address-col{
+    min-width:0;
+  }
+}
+@media(max-width:480px){
+  .address-grid{
+    grid-template-columns:repeat(2,minmax(120px,1fr));
+  }
+}
+@media(max-width:360px){
+  .address-grid{
+    grid-template-columns:repeat(1,minmax(0,1fr));
+  }
+  .address-grid .address-col,
+  .address-grid .address-span-2{
+    grid-column:span 1;
+  }
+}

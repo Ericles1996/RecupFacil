@@ -158,6 +158,29 @@
             </form>
         </div>
            
+<script>
+    (function () {
+        function toggleCategoryFields() {
+            const categorySelect = document.getElementById('category');
+            if (!categorySelect) return;
 
+            const eletronicoFields = document.getElementById('eletronicoFields');
+            const veiculoFields = document.getElementById('veiculoFields');
+            const selectedValue = categorySelect.value;
 
+            if (eletronicoFields) {
+                eletronicoFields.style.display = selectedValue === 'eletronico' ? 'block' : 'none';
+            }
 
+            if (veiculoFields) {
+                veiculoFields.style.display = selectedValue === 'veiculo' ? 'block' : 'none';
+            }
+        }
+
+        window.handleCategoryChange = toggleCategoryFields;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            toggleCategoryFields();
+        });
+    })();
+</script>
